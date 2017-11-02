@@ -54,14 +54,19 @@ public class Player implements MouseMotionListener{
 		return life <= 0;
 	}
 	
-	public void recoverLife(){
+	public synchronized void recoverLife(){
 		if(++life >= 3)
 			life--;
 	}
 	
-	public void fallLife(){
+	public synchronized void fallLife(){
 		if(--life >= 1)
 			currentImage = images[3 - life];
+	}
+	
+	// 상관 없다 생각하지만 동기화 주의
+	public void changeBulletTypeTo(Bullet bulletType){
+		currentBulletType = bulletType;
 	}
 	
 	public void drawSelf(Graphics2D g){

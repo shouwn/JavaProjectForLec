@@ -11,6 +11,7 @@ import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
 import common.Operater;
+import common.Score;
 
 public class MyPanel extends JPanel{
 	
@@ -19,7 +20,7 @@ public class MyPanel extends JPanel{
 	private BufferedImage backgroundImage;
 	
 	public MyPanel(){
-		this.setSize(new Dimension(500, 700));
+		this.setSize(new Dimension(500, 600));
 		setDoubleBuffered(true);
 		
 		try {
@@ -37,7 +38,11 @@ public class MyPanel extends JPanel{
 		super.paintComponent(g);
 		
 		Graphics2D g2 = (Graphics2D) g;
-		g2.drawImage(backgroundImage, 0, 0, 500, 700, null);
+		g2.drawImage(backgroundImage, 0, 0, 500, 600, null);
 		op.paintAll(g2);
+	}
+	
+	public Score getScore(){
+		return op.getScore();
 	}
 }

@@ -10,6 +10,8 @@ import bullet.Bullet;
 import bullet.Bullets;
 import enemy.Enemy;
 import enemy.Enemys;
+import item.Item;
+import item.Items;
 import player.Player;
 
 public class Operater {
@@ -18,10 +20,12 @@ public class Operater {
 	
 	private List<Bullet> bulletList;
 	private List<Enemy> enemyList;
+	private List<Item> itemList;
 	private Player player;
 	
 	private boolean isGamePause = false;
 	private int width, height;
+	private Score score;
 	
 	public Operater(JPanel panel){
 		this.panel = panel;
@@ -30,7 +34,10 @@ public class Operater {
 		
 		bulletList = new ArrayList<Bullet>();
 		enemyList = new ArrayList<Enemy>();
+		itemList = new ArrayList<Item>();
 		player = new Player(new Point(0, height - 100));
+		
+		score = new Score();
 		
 		panel.addMouseMotionListener(player);
 	}
@@ -39,6 +46,7 @@ public class Operater {
 
 		Bullets.paintBullets(bulletList, g);
 		Enemys.paintEnemys(enemyList, g);
+		Items.paintItems(itemList, g);
 		player.drawSelf(g);
 	}
 	
@@ -58,6 +66,10 @@ public class Operater {
 	
 	public void gameRestart(){
 		isGamePause = false;
+	}
+	
+	public Score getScore(){
+		return score;
 	}
 	
 	private void checkGameOver(){
@@ -106,6 +118,7 @@ public class Operater {
 				
 				Bullets.moveBullets(bulletList);
 				Enemys.moveEnemys(enemyList);
+				Items.moveItem(itemList);
 				
 				try {
 					Thread.sleep(30);
@@ -124,6 +137,7 @@ public class Operater {
 				
 				Bullets.checkOutOfScreen(bulletList, 0);
 				Enemys.checkOutOfScreen(enemyList, height);
+				Items.checkOutOfScreen(itemList, height);
 				
 				try {
 					Thread.sleep(60);
@@ -142,9 +156,11 @@ public class Operater {
 				
 				Enemys.checkEnemysDamaged(enemyList, bulletList);
 				Enemys.checkEnemyAttackedPlayer(enemyList, player);
+				Items.checkItemcrashedPlayer(itemList, player);
 				
-				Enemys.deletEnemys(enemyList);
+				Enemys.deletEnemys(enemyList, itemList);
 				Bullets.deletBullets(bulletList);
+				Items.deletItem(itemList);
 				checkGameOver();
 				
 				try {

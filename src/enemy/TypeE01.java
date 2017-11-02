@@ -18,6 +18,7 @@ public class TypeE01 implements Enemy{
 	private int life;
 	private Point point;
 	private float speed;
+	private int itemProbability;
 	private static BufferedImage image;
 	
 	static {
@@ -37,6 +38,7 @@ public class TypeE01 implements Enemy{
 		score = 10;
 		speed = 10;
 		life = 1;
+		itemProbability = 30;
 		
 		this.point = point;
 	}
@@ -107,6 +109,11 @@ public class TypeE01 implements Enemy{
 	@Override
 	public int getScore() {
 		return score;
+	}
+
+	@Override
+	public int getItemProbability() {
+		return itemProbability;
 	}
 
 }

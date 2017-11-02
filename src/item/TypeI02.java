@@ -12,7 +12,7 @@ import common.Point;
 import common.Points;
 import player.Player;
 
-public class TypeI01 implements Item{
+public class TypeI02 implements Item{
 
 	private float speed;
 	private float gravity;
@@ -24,17 +24,17 @@ public class TypeI01 implements Item{
 	
 	static{
 		try {
-			image = ImageIO.read(new File("CoolPeaceLarge.png"));
+			image = ImageIO.read(new File("CoolPeace.png"));
 		} catch (IOException e) {
 			System.err.println("Fail Load Bullet Image");
 			System.exit(0);
 		}
 	}
 	
-	public TypeI01(){
+	public TypeI02(){
 	}
 	
-	public TypeI01(Point point){
+	public TypeI02(Point point){
 		speed = 20;
 		gravity = 2;
 		score = 10;
@@ -96,7 +96,7 @@ public class TypeI01 implements Item{
 
 	@Override
 	public Item makeSelf(Point point) {
-		return new TypeI01(point.add(-image.getWidth()/2, 0));
+		return new TypeI02(point.add(-image.getWidth()/2, 0));
 	}
 	
 }

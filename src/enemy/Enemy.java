@@ -17,6 +17,7 @@ public interface Enemy {
 	boolean checkDead();
 	boolean isCrashed(Player player);
 	
+	int getItemProbability();
 	int getWidth();
 	int getHeight();
 	void setDead();
