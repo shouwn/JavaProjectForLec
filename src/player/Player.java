@@ -59,6 +59,11 @@ public class Player implements MouseMotionListener{
 			life--;
 	}
 	
+	public void fallLife(){
+		if(--life >= 1)
+			currentImage = images[3 - life];
+	}
+	
 	public void drawSelf(Graphics2D g){
 		g.drawImage(currentImage, AffineTransform.getTranslateInstance(point.getX(), point.getY()), null);
 	}
@@ -71,16 +76,6 @@ public class Player implements MouseMotionListener{
 		this.bulletList = list;
 	}
 	
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		point.setX(e.getX() - width/2);
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		point.setX(e.getX() - width/2);
-	}
-
 	public Bullet getCurrentBulletType() {
 		return currentBulletType;
 	}
@@ -93,12 +88,17 @@ public class Player implements MouseMotionListener{
 		return currentImage.getWidth();
 	}
 	
-	public void fallLife(){
-		if(--life >= 1)
-			currentImage = images[3 - life];
-	}
-	
 	public Point getPoint(){
 		return point;
+	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		point.setX(e.getX() - width/2);
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		point.setX(e.getX() - width/2);
 	}
 }

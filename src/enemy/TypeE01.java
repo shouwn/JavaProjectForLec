@@ -45,10 +45,10 @@ public class TypeE01 implements Enemy{
 	public Enemy makeSelf(Point point) {
 		return new TypeE01(point);
 	}
-
+	
 	@Override
-	public int getWidth() {
-		return image.getWidth();
+	public void moveSelf() {
+		point.move(0, -speed);
 	}
 
 	@Override
@@ -56,40 +56,6 @@ public class TypeE01 implements Enemy{
 		g.drawImage(image, AffineTransform.getTranslateInstance(point.getX(), point.getY()), null);
 	}
 
-	@Override
-	public void moveSelf() {
-		point.move(0, -speed);
-	}
-
-	@Override
-	public void fallLife() {
-		life--;
-	}
-
-	@Override
-	public int getScore() {
-		return score;
-	}
-
-	@Override
-	public boolean checkDead() {
-		return life <= 0;
-	}
-
-	@Override
-	public void setDead() {
-		life = 0;
-	}
-	
-	@Override
-	public Point getPoint(){
-		return point;
-	}
-
-	@Override
-	public int getHeight() {
-		return image.getHeight();
-	}
 
 	@Override
 	public boolean isCrashed(Player player) {
@@ -108,5 +74,39 @@ public class TypeE01 implements Enemy{
 		return false;
 	}
 
+	@Override
+	public void fallLife() {
+		life--;
+	}
+
+	@Override
+	public boolean checkDead() {
+		return life <= 0;
+	}
+
+	@Override
+	public void setDead() {
+		life = 0;
+	}
+	
+	@Override
+	public Point getPoint(){
+		return point;
+	}
+	
+	@Override
+	public int getWidth() {
+		return image.getWidth();
+	}
+
+	@Override
+	public int getHeight() {
+		return image.getHeight();
+	}
+
+	@Override
+	public int getScore() {
+		return score;
+	}
 
 }
