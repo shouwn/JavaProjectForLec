@@ -74,4 +74,10 @@ public class TypeE02 implements Enemy{
 		return false;
 	}
 
+	@Override
+	public int getItemProbability() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
 }

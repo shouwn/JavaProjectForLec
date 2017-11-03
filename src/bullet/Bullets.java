@@ -50,7 +50,7 @@ public class Bullets {
 		}
 	}
 	
-	public static synchronized void checkBulletAttackEnemy(List<Bullet> list, Enemy e){
+	public static synchronized int checkBulletAttackEnemy(List<Bullet> list, Enemy e){
 		Bullet b;
 		
 		for(int i = 0; i < list.size(); i++){
@@ -58,7 +58,12 @@ public class Bullets {
 			if(b.isCrashed(e)){
 				b.setUseless();
 				e.fallLife();
+				
+				if(e.checkDead())
+					return e.getScore();
 			}
 		}
+		
+		return 0;
 	}
 }

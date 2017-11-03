@@ -9,22 +9,33 @@ import java.util.Random;
 import bullet.Bullet;
 import bullet.Bullets;
 import common.Point;
+import item.Item;
+import item.Items;
 import player.Player;
 
 public class Enemys {
 	
 	private static int enemyVariety = 1;
 	private static HashMap<Integer, Enemy> enemyType = new HashMap<Integer, Enemy>();
+	private static Random random = new Random();
 	
 	static {
 		enemyType.put(0, new TypeE01());
 		enemyType.put(1, new TypeE02());
 	}
 	
-	public static synchronized void deletEnemys(List<Enemy> list) {
+	public static synchronized void deletEnemys(List<Enemy> list, List<Item> itemList) {
+		Enemy e;
+		
 		for(int i = 0; i < list.size(); i++) {
-			if(list.get(i).checkDead())
+			e = list.get(i);
+			
+			if(e.checkDead()){
+				if(random.nextInt(100) + 1 < e.getItemProbability())
+					Items.makeItem(itemList, e.getPoint().add(e.getWidth()/2, 0));
+				
 				list.remove(i--);
+			}
 		}
 	}
 	
@@ -56,6 +67,8 @@ public class Enemys {
 	}
 	
 	public static synchronized void checkEnemysDamaged(List<Enemy> enemyList, List<Bullet> bulletList){
+		
+		
 		for(int i = 0; i < enemyList.size(); i++){
 			Bullets.checkBulletAttackEnemy(bulletList, enemyList.get(i));
 		}
