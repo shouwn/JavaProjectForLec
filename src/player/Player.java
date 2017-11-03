@@ -54,9 +54,19 @@ public class Player implements MouseMotionListener{
 		return life <= 0;
 	}
 	
-	public void recoverLife(){
+	public synchronized void recoverLife(){
 		if(++life >= 3)
 			life--;
+	}
+	
+	public synchronized void fallLife(){
+		if(--life >= 1)
+			currentImage = images[3 - life];
+	}
+	
+	// 상관 없다 생각하지만 동기화 주의
+	public void changeBulletTypeTo(Bullet bulletType){
+		currentBulletType = bulletType;
 	}
 	
 	public void drawSelf(Graphics2D g){
@@ -71,16 +81,6 @@ public class Player implements MouseMotionListener{
 		this.bulletList = list;
 	}
 	
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		point.setX(e.getX() - width/2);
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		point.setX(e.getX() - width/2);
-	}
-
 	public Bullet getCurrentBulletType() {
 		return currentBulletType;
 	}
@@ -93,12 +93,17 @@ public class Player implements MouseMotionListener{
 		return currentImage.getWidth();
 	}
 	
-	public void fallLife(){
-		if(--life >= 1)
-			currentImage = images[3 - life];
-	}
-	
 	public Point getPoint(){
 		return point;
+	}
+	
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		point.setX(e.getX() - width/2);
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		point.setX(e.getX() - width/2);
 	}
 }

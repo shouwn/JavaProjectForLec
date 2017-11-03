@@ -14,12 +14,14 @@ public interface Enemy {
 	
 	void fallLife();
 	
-	int getScore();
 	boolean checkDead();
+	boolean isCrashed(Player player);
+	
+	int getItemProbability();
 	int getWidth();
 	int getHeight();
 	void setDead();
 	Point getPoint();
+	int getScore();
 	
-	boolean isCrashed(Player player);
 }
