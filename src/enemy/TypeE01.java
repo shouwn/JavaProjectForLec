@@ -19,6 +19,7 @@ public class TypeE01 implements Enemy{
 	private Point point;
 	private float speed;
 	private int itemProbability;
+	private boolean isOutOfScreen = false;
 	private static BufferedImage image;
 	
 	static {
@@ -114,6 +115,16 @@ public class TypeE01 implements Enemy{
 	@Override
 	public int getItemProbability() {
 		return itemProbability;
+	}
+
+	@Override
+	public boolean checkOutOfScreen() {
+		return isOutOfScreen;
+	}
+
+	@Override
+	public void setOutOfScreen() {
+		isOutOfScreen = true;
 	}
 
 }

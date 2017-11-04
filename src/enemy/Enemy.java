@@ -16,7 +16,9 @@ public interface Enemy {
 	
 	boolean checkDead();
 	boolean isCrashed(Player player);
+	boolean checkOutOfScreen();
 	
+	void setOutOfScreen();
 	int getItemProbability();
 	int getWidth();
 	int getHeight();

@@ -158,9 +158,9 @@ public class Operater {
 				Enemys.checkEnemyAttackedPlayer(enemyList, player);
 				Items.checkItemcrashedPlayer(itemList, player);
 				
-				Enemys.deletEnemys(enemyList, itemList);
+				Enemys.deletEnemys(enemyList, itemList, score);
 				Bullets.deletBullets(bulletList);
-				Items.deletItem(itemList);
+				Items.deletItem(itemList, score);
 				checkGameOver();
 				
 				try {

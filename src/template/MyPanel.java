@@ -20,7 +20,7 @@ public class MyPanel extends JPanel{
 	private BufferedImage backgroundImage;
 	
 	public MyPanel(){
-		this.setSize(new Dimension(500, 600));
+		this.setSize(new Dimension(500, 670));
 		setDoubleBuffered(true);
 		
 		try {
@@ -38,7 +38,7 @@ public class MyPanel extends JPanel{
 		super.paintComponent(g);
 		
 		Graphics2D g2 = (Graphics2D) g;
-		g2.drawImage(backgroundImage, 0, 0, 500, 600, null);
+		g2.drawImage(backgroundImage, 0, 0, 500, 670, null);
 		op.paintAll(g2);
 	}
 	

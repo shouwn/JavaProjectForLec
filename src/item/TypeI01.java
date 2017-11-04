@@ -37,7 +37,7 @@ public class TypeI01 implements Item{
 	public TypeI01(Point point){
 		speed = 20;
 		gravity = 2;
-		score = 10;
+		score = 20;
 		this.point = point;
 	}
 

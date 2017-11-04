@@ -80,4 +80,16 @@ public class TypeE02 implements Enemy{
 		return 0;
 	}
 
+	@Override
+	public boolean checkOutOfScreen() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setOutOfScreen() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

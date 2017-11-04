@@ -9,6 +9,7 @@ import java.util.Random;
 import bullet.Bullet;
 import bullet.Bullets;
 import common.Point;
+import common.Score;
 import item.Item;
 import item.Items;
 import player.Player;
@@ -24,7 +25,7 @@ public class Enemys {
 		enemyType.put(1, new TypeE02());
 	}
 	
-	public static synchronized void deletEnemys(List<Enemy> list, List<Item> itemList) {
+	public static synchronized void deletEnemys(List<Enemy> list, List<Item> itemList, Score score) {
 		Enemy e;
 		
 		for(int i = 0; i < list.size(); i++) {
@@ -34,8 +35,12 @@ public class Enemys {
 				if(random.nextInt(100) + 1 < e.getItemProbability())
 					Items.makeItem(itemList, e.getPoint().add(e.getWidth()/2, 0));
 				
+				score.addScore(e.getScore());
 				list.remove(i--);
 			}
+			
+			if(e.checkOutOfScreen())
+				list.remove(i--);
 		}
 	}
 	
@@ -60,7 +65,7 @@ public class Enemys {
 		for(int i = 0; i < list.size(); i++){
 			e = list.get(i);
 			if(e.getPoint().getY() > end){
-				e.setDead();
+				e.setOutOfScreen();
 			}
 				
 		}

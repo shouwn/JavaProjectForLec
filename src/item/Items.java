@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import common.Point;
+import common.Score;
 import player.Player;
 
 public class Items {
@@ -22,14 +23,16 @@ public class Items {
 		randWeight[1] = 70;
 	}
 	
-	public static synchronized void deletItem(List<Item> list){
+	public static synchronized void deletItem(List<Item> list, Score score){
 		Item item;
 		
 		for(int i = 0; i < list.size(); i++){
 			item = list.get(i);
 			
-			if(!item.isUseful())
+			if(!item.isUseful()){
+				score.addScore(item.getScore());
 				list.remove(i--);
+			}
 		}
 		
 	}
