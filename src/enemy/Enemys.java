@@ -33,7 +33,7 @@ public class Enemys {
 			
 			if(e.checkDead()){
 				if(random.nextInt(100) + 1 < e.getItemProbability())
-					Items.makeItem(itemList, e.getPoint().add(e.getWidth()/2, 0));
+					Items.makeItem(itemList, e.getEachItemProbability(), e.getPoint().add(e.getWidth()/2, 0));
 				
 				score.addScore(e.getScore());
 				list.remove(i--);
@@ -49,8 +49,10 @@ public class Enemys {
 	}
 	
 	public static synchronized void paintEnemys(List<Enemy> list, Graphics2D g){
-		for(int i = 0; i < list.size(); i++)
-			list.get(i).drawSelf(g);
+		for(int i = 0; i < list.size(); i++) {
+			if(!(list.get(i).checkDead() || list.get(i).checkOutOfScreen()))
+					list.get(i).drawSelf(g);
+		}
 	}
 	
 	public static synchronized void moveEnemys(List<Enemy> list){

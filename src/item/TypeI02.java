@@ -98,5 +98,44 @@ public class TypeI02 implements Item{
 	public Item makeSelf(Point point) {
 		return new TypeI02(point.add(-image.getWidth()/2, 0));
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Float.floatToIntBits(gravity);
+		result = prime * result + (isUseful ? 1231 : 1237);
+		result = prime * result + ((point == null) ? 0 : point.hashCode());
+		result = prime * result + score;
+		result = prime * result + Float.floatToIntBits(speed);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		TypeI02 other = (TypeI02) obj;
+		if (Float.floatToIntBits(gravity) != Float.floatToIntBits(other.gravity))
+			return false;
+		if (isUseful != other.isUseful)
+			return false;
+		if (point == null) {
+			if (other.point != null)
+				return false;
+		} else if (!point.equals(other.point))
+			return false;
+		if (score != other.score)
+			return false;
+		if (Float.floatToIntBits(speed) != Float.floatToIntBits(other.speed))
+			return false;
+		return true;
+	}
+	
+	
 	
 }

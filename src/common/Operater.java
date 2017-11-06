@@ -53,10 +53,7 @@ public class Operater {
 	public void startGame(){
 
 		new MakeEnemy().start();
-		new DrawPanel().start();
-		new UpdatePanel().start();
-		new CheckOutOfScreen().start();
-		new CheckIsDamaged().start();
+		new UpdateAll().start();
 		new PlayerAttack().start();
 	}
 	
@@ -94,24 +91,7 @@ public class Operater {
 		}
 	}
 
-	class DrawPanel extends Thread{
-		@Override
-		public void run() {
-			while(!isGamePause) {
-				
-				panel.repaint();
-
-				try {
-					Thread.sleep(30);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	class UpdatePanel extends Thread{
+	class UpdateAll extends Thread{
 		@Override
 		public void run() {
 			while(!isGamePause) {
@@ -120,40 +100,10 @@ public class Operater {
 				Enemys.moveEnemys(enemyList);
 				Items.moveItem(itemList);
 				
-				try {
-					Thread.sleep(30);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	class CheckOutOfScreen extends Thread{
-		@Override
-		public void run() {
-			while(!isGamePause) {
-				
 				Bullets.checkOutOfScreen(bulletList, 0);
 				Enemys.checkOutOfScreen(enemyList, height);
 				Items.checkOutOfScreen(itemList, height);
-				
-				try {
-					Thread.sleep(60);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-	}
 
-	class CheckIsDamaged extends Thread{
-		@Override
-		public void run() {
-			while(!isGamePause) {
-				
 				Enemys.checkEnemysDamaged(enemyList, bulletList);
 				Enemys.checkEnemyAttackedPlayer(enemyList, player);
 				Items.checkItemcrashedPlayer(itemList, player);
@@ -162,6 +112,8 @@ public class Operater {
 				Bullets.deletBullets(bulletList);
 				Items.deletItem(itemList, score);
 				checkGameOver();
+
+				panel.repaint();
 				
 				try {
 					Thread.sleep(30);
@@ -172,6 +124,7 @@ public class Operater {
 			}
 		}
 	}
+
 	class PlayerAttack extends Thread{
 		@Override
 		public void run() {

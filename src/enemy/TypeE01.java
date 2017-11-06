@@ -5,11 +5,15 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
 import common.Point;
 import common.Points;
+import item.Item;
+import item.Items;
 import player.Player;
 
 public class TypeE01 implements Enemy{
@@ -19,6 +23,7 @@ public class TypeE01 implements Enemy{
 	private Point point;
 	private float speed;
 	private int itemProbability;
+	private static Map<Item, Integer> eachItemProbability = new HashMap<Item, Integer>();
 	private boolean isOutOfScreen = false;
 	private static BufferedImage image;
 	
@@ -29,6 +34,8 @@ public class TypeE01 implements Enemy{
 			System.err.println("Fail Load Bullet Image");
 			System.exit(0);
 		}
+		
+		eachItemProbability.put(Items.getItemType(1), 100);
 	}
 	
 	public TypeE01() {
@@ -125,6 +132,11 @@ public class TypeE01 implements Enemy{
 	@Override
 	public void setOutOfScreen() {
 		isOutOfScreen = true;
+	}
+
+	@Override
+	public Map<Item, Integer> getEachItemProbability() {
+		return eachItemProbability;
 	}
 
 }

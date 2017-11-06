@@ -1,8 +1,10 @@
 package enemy;
 
 import java.awt.Graphics2D;
+import java.util.Map;
 
 import common.Point;
+import item.Item;
 import player.Player;
 
 public interface Enemy {
@@ -25,5 +27,6 @@ public interface Enemy {
 	void setDead();
 	Point getPoint();
 	int getScore();
+	Map<Item, Integer> getEachItemProbability();
 	
 }
