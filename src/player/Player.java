@@ -86,11 +86,11 @@ public class Player implements MouseMotionListener{
 	}
 	
 	public int getHeight(){
-		return currentImage.getHeight();
+		return images[0].getHeight();
 	}
 	
 	public int getWidth(){
-		return currentImage.getWidth();
+		return images[0].getWidth();
 	}
 	
 	public Point getPoint(){

@@ -16,7 +16,7 @@ import player.Player;
 
 public class Enemys {
 	
-	private static int enemyVariety = 1;
+	private static int enemyVariety = 2;
 	private static HashMap<Integer, Enemy> enemyType = new HashMap<Integer, Enemy>();
 	private static Random random = new Random();
 	
