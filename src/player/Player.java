@@ -7,8 +7,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.imageio.ImageIO;
 
@@ -45,7 +45,7 @@ public class Player implements MouseMotionListener{
 		this.currentImage = images[0];
 		this.point = point;
 		this.currentBulletType = Bullets.TYPE_01;
-		this.bulletList = new Vector<Bullet>();
+		this.bulletList = new ArrayList<Bullet>();
 		this.width = currentImage.getWidth();
 		this.height = currentImage.getHeight();
 	}
@@ -64,7 +64,7 @@ public class Player implements MouseMotionListener{
 			currentImage = images[3 - life];
 	}
 	
-	// »ó°ü ¾ø´Ù »ý°¢ÇÏÁö¸¸ µ¿±âÈ­ ÁÖÀÇ
+	// ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½È­ ï¿½ï¿½ï¿½ï¿½
 	public void changeBulletTypeTo(Bullet bulletType){
 		currentBulletType = bulletType;
 	}
