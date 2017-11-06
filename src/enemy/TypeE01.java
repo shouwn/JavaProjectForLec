@@ -66,7 +66,6 @@ public class TypeE01 implements Enemy{
 		g.drawImage(image, AffineTransform.getTranslateInstance(point.getX(), point.getY()), null);
 	}
 
-
 	@Override
 	public boolean isCrashed(Player player) {
 		

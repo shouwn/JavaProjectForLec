@@ -19,6 +19,7 @@ public class TypeI02 implements Item{
 	private int score;
 	private Point point;
 	private boolean isUseful = true;
+	private boolean isOutOfScreen = false;
 	
 	private static BufferedImage image;
 	
@@ -134,6 +135,16 @@ public class TypeI02 implements Item{
 		if (Float.floatToIntBits(speed) != Float.floatToIntBits(other.speed))
 			return false;
 		return true;
+	}
+
+	@Override
+	public void setOutOfScreen() {
+		isOutOfScreen = true;
+	}
+
+	@Override
+	public boolean isOutOfScreen() {
+		return isOutOfScreen;
 	}
 	
 	

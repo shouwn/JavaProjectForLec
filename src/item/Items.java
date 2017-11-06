@@ -14,7 +14,7 @@ public class Items {
 	private static HashMap<Integer, Item> itemType = new HashMap<Integer, Item>();
 	private static int[] randWeight;
 	
-	// ������ ��� ����
+	
 	static {
 		itemType.put(0, new TypeI01());
 		itemType.put(1, new TypeI02());
@@ -34,6 +34,8 @@ public class Items {
 				score.addScore(item.getScore());
 				list.remove(i--);
 			}
+			else if(item.isOutOfScreen())
+				list.remove(i--);
 		}
 		
 	}
@@ -68,7 +70,7 @@ public class Items {
 		for(int i = 0; i < list.size(); i++){
 			item = list.get(i);
 			if(item.getPoint().getY() > end){
-				item.setUseless();
+				item.setOutOfScreen();
 			}
 				
 		}

@@ -99,15 +99,15 @@ public class Operater {
 				Bullets.moveBullets(bulletList);
 				Enemys.moveEnemys(enemyList);
 				Items.moveItem(itemList);
-				
-				Bullets.checkOutOfScreen(bulletList, 0);
-				Enemys.checkOutOfScreen(enemyList, height);
-				Items.checkOutOfScreen(itemList, height);
 
 				Enemys.checkEnemysDamaged(enemyList, bulletList);
 				Enemys.checkEnemyAttackedPlayer(enemyList, player);
 				Items.checkItemcrashedPlayer(itemList, player);
 				
+				Bullets.checkOutOfScreen(bulletList, 0);
+				Enemys.checkOutOfScreen(enemyList, height);
+				Items.checkOutOfScreen(itemList, height);
+
 				Enemys.deletEnemys(enemyList, itemList, score);
 				Bullets.deletBullets(bulletList);
 				Items.deletItem(itemList, score);
