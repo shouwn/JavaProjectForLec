@@ -3,6 +3,8 @@ package common;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.JPanel;
 
@@ -22,6 +24,9 @@ public class Operater {
 	private List<Enemy> enemyList;
 	private List<Item> itemList;
 	private Player player;
+	private int phase = 1;
+	private int phaseMax = 2;
+	private Timer timer = new Timer();
 	
 	private boolean isGamePause = false;
 	private int width, height;
@@ -38,6 +43,8 @@ public class Operater {
 		player = new Player(new Point(0, height - 100));
 		
 		score = new Score();
+		
+		timer.schedule(new ChangePhase(), 4000, 2000);
 		
 		panel.addMouseMotionListener(player);
 	}
@@ -137,6 +144,22 @@ public class Operater {
 					e.printStackTrace();
 				}
 			}
+		}
+	}	
+	class ChangePhase extends TimerTask{
+
+
+		@Override
+		public void run() {
+			
+			if(phase < phaseMax) {
+				gamePause();
+				Enemys.changeEnemyVariety();
+				gameRestart();
+				phase++;
+			}
+			else
+				timer.cancel();
 		}
 	}
 }
