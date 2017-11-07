@@ -64,7 +64,6 @@ public class Player implements MouseMotionListener{
 			currentImage = images[3 - life];
 	}
 	
-	// ��� ���� ���������� ����ȭ ����
 	public void changeBulletTypeTo(Bullet bulletType){
 		currentBulletType = bulletType;
 	}
