@@ -129,6 +129,10 @@ public class Enemys {
 		
 		for(int i = 0; i < list.size(); i++){
 			e = list.get(i);
+			
+			if(e.checkDead())
+				continue;
+			
 			if(e.isCrashed(player)){
 				e.setDead();
 				player.fallLife();
