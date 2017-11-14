@@ -34,6 +34,8 @@ public class MyPanel extends JPanel{
 		op = new Operater(this);
 		add(score);
 		new UpdateLabel().start();
+		this.setFocusable(true);
+		this.requestFocusInWindow();
 		op.startGame();
 	}
 
