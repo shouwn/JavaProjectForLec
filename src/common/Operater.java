@@ -34,6 +34,7 @@ public class Operater {
 	private int updateInterval = 30;
 	private int playerAttackInterval = 300;
 
+	private boolean isGameOver = false;
 	private boolean isGamePause = false;
 	private int width, height;
 	private Score score;
@@ -85,8 +86,10 @@ public class Operater {
 	}
 
 	private void checkGameOver(){
-		if(player.isDead())
+		if(player.isDead()){
 			gamePause();
+			isGameOver = true;
+		}
 	}
 
 	private void changePhase(){
@@ -173,7 +176,7 @@ public class Operater {
 						Enemys.changeEnemyVariety();
 						changePhase();
 						try {
-							Thread.sleep(1000);
+							Thread.sleep(1000); // 나중에 작업하기 위한 테스트용 sleep
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

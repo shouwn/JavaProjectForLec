@@ -27,4 +27,9 @@ public class Score{
 		return phase;
 	}
 
+	public String getTime(){
+
+		return new StringBuilder(String.valueOf(time/60000)).append(":").append(time/1000).toString();
+	}
+
 }
