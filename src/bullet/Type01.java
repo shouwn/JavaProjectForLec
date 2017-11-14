@@ -5,6 +5,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.imageio.ImageIO;
 
@@ -13,12 +15,12 @@ import common.Points;
 import enemy.Enemy;
 
 public class Type01 implements Bullet{
-	
+
 	private static BufferedImage image;
 	private Point point;
 	private float speed = 20;
 	private boolean isUseful = true;
-	
+
 	static {
 		try {
 			image = ImageIO.read(new File("Fork.gif"));
@@ -27,18 +29,20 @@ public class Type01 implements Bullet{
 			System.exit(0);
 		}
 	}
-	
+
 	public Type01() {
-		
+
 	}
-	
+
 	public Type01(Point point) {
 		this.point = point;
 	}
-	
+
 	@Override
-	public Bullet makeSelf() {
-		return new Type01(new Point(this.point).move(25, 0));
+	public List<Bullet> makeSelf() {
+		List<Bullet> list = new ArrayList<Bullet>();
+		list.add(new Type01(new Point(this.point).move(25, 0)));
+		return list;
 	}
 
 	@Override
@@ -73,20 +77,18 @@ public class Type01 implements Bullet{
 
 	@Override
 	public boolean isCrashed(Enemy e) {
-		
+
 		if(!isUseful)
 			return false;
-		
+
 		float x1 = e.getPoint().getX();
 		float x2 = x1 + e.getWidth();
 		float y1 = e.getPoint().getY();
 		float y2 = y1 + e.getHeight();
-		
-		if(Points.checkPointInArea(point, new Point(x1, y1), new Point(x2, y2)))
+
+		if(Points.checkAreaInArea(new Point(point), new Point(point).add(image.getTileWidth(), image.getHeight()), new Point(x1, y1), new Point(x2, y2)))
 			return true;
-		if(Points.checkPointInArea(new Point(point).add(image.getWidth(), 0), new Point(x1, y1), new Point(x2, y2)))
-			return true;
-		
+
 		return false;
 	}
 }
