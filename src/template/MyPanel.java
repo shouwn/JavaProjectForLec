@@ -1,13 +1,10 @@
 package template;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -17,22 +14,26 @@ public class MyPanel extends JPanel{
 
 	private Operater op;
 
-	private BufferedImage backgroundImage;
 	private JLabel score;
+	private JLabel time;
+	private JLabel phase;
 
 	public MyPanel(){
 		score = new JLabel("0");
+		time = new JLabel("00:00");
+		phase = new JLabel("PHASE 1");
+
+		score.setForeground(Color.WHITE);
+		time.setForeground(Color.WHITE);
+		phase.setForeground(Color.WHITE);
+
 		this.setSize(new Dimension(500, 700));
 		setDoubleBuffered(true);
 
-		try {
-			backgroundImage = ImageIO.read(new File("start222.png"));
-		} catch (IOException e) {
-			System.err.println("Fail Load Background Image");
-		}
-
 		op = new Operater(this);
 		add(score);
+		add(time);
+		add(phase);
 		new UpdateLabel().start();
 		this.setFocusable(true);
 		this.requestFocusInWindow();
@@ -43,16 +44,17 @@ public class MyPanel extends JPanel{
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 
-		Graphics2D g2 = (Graphics2D) g;
-		g2.drawImage(backgroundImage, 0, 0, 500, 700, null);
-		op.paintAll(g2);
+		op.paintAll((Graphics2D) g);
 	}
 
 	class UpdateLabel extends Thread{
 		@Override
 		public void run() {
 			while(true) {
-				score.setText(String.valueOf(op.getScore().getScore()));
+				score.setText(op.getScore().getScore());
+				time.setText(op.getScore().getTime());
+				phase.setText(op.getScore().getPhase());
+
 				try {
 					Thread.sleep(30);
 				} catch (InterruptedException e) {

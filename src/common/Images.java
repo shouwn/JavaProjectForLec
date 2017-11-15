@@ -7,16 +7,16 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Images {
-	
+
 	public static BufferedImage[] readImages(String path){
 		BufferedImage[] images;
-		
-		File dirFile=new File(path);
-		File []fileList=dirFile.listFiles();
-		
+
+		File dirFile = new File(path);
+		File[] fileList = dirFile.listFiles();
+
 		if(fileList == null)
 			System.out.println("잘못된 이미지 path");
-		
+
 		images = new BufferedImage[fileList.length];
 		for(int i = 0; i < fileList.length; i++){
 			try {
@@ -26,7 +26,7 @@ public class Images {
 				e.printStackTrace();
 			}
 		}
-		
+
 		return images;
 	}
 }

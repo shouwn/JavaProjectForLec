@@ -3,10 +3,14 @@ package common;
 import java.awt.Graphics2D;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.JPanel;
 
@@ -29,6 +33,17 @@ public class Operater {
 	private int phase = 1;
 	private int phaseMax = 2;
 	private Timer timer = new Timer();
+	private final Lock suspendLock = new ReentrantLock();
+	private final Condition notPause = suspendLock.newCondition();
+	private final Condition notRestart = suspendLock.newCondition();
+
+	private BufferedImage currentBackgroundImage;
+	private BufferedImage[] images;
+
+	private Thread makeEnemy;
+	private Thread updateAll;
+	private Thread playerAttack;
+	private Thread updateBG;
 
 	private int makeEnemyInterval = 1000;
 	private int updateInterval = 30;
@@ -36,6 +51,8 @@ public class Operater {
 
 	private boolean isGameOver = false;
 	private boolean isGamePause = false;
+	private boolean isThreadStop = false;
+
 	private int width, height;
 	private Score score;
 
@@ -43,6 +60,9 @@ public class Operater {
 		this.panel = panel;
 		this.width = panel.getWidth();
 		this.height = panel.getHeight();
+
+		images = Images.readImages("image/background");
+		currentBackgroundImage = images[0];
 
 		bulletList = new ArrayList<Bullet>();
 		enemyList = new ArrayList<Enemy>();
@@ -59,6 +79,7 @@ public class Operater {
 
 	public void paintAll(Graphics2D g){
 
+		g.drawImage(currentBackgroundImage, 0, 0, 500, 700, null);
 		Bullets.paintBullets(bulletList, g);
 		Enemys.paintEnemys(enemyList, g);
 		Items.paintItems(itemList, g);
@@ -66,18 +87,42 @@ public class Operater {
 	}
 
 	public void startGame(){
+		if(!isGameOver){
+			makeEnemy = new MakeEnemy();
+			updateAll = new UpdateAll();
+			playerAttack = new PlayerAttack();
+			updateBG = new UpdateBG();
 
-		new MakeEnemy().start();
-		new UpdateAll().start();
-		new PlayerAttack().start();
+			makeEnemy.start();
+			updateAll.start();
+			playerAttack.start();
+			updateBG.start();
+
+			isThreadStop = false;
+		}
 	}
 
 	public void gamePause(){
+
 		isGamePause = true;
+
+		try {
+			makeEnemy.join();
+			updateAll.join();
+			playerAttack.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		isThreadStop = true;
+
 	}
 
 	public void gameRestart(){
+
 		isGamePause = false;
+
 		startGame();
 	}
 
@@ -93,6 +138,7 @@ public class Operater {
 	}
 
 	private void changePhase(){
+		score.changePhase();
 		phase++;
 	}
 
@@ -192,17 +238,43 @@ public class Operater {
 	}
 
 	class GamePause extends KeyAdapter{
+		private boolean isTaskOver = true;
 
 		@Override
 		public void keyPressed(KeyEvent e){
-			if(e.getKeyCode() == KeyEvent.VK_ESCAPE){
-				if(isGamePause)
-					gameRestart();
-				else
+			System.out.println(isTaskOver);
+			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && isTaskOver){
+				if(!isGamePause){
+					isTaskOver = false;
+					System.out.println("testPause");
 					gamePause();
+					isTaskOver = true;
+				}
+				else if(isThreadStop){
+					isTaskOver = false;
+					System.out.println("testRestart");
+					gameRestart();
+					isTaskOver = true;
+				}
 			}
-
 		}
+	}
 
+	class UpdateBG extends Thread{
+		private int current = 0;
+
+		@Override
+		public void run(){
+			while(!isGamePause){
+				current = (current + 1) % images.length;
+				currentBackgroundImage = images[current];
+				try {
+					Thread.sleep(90);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

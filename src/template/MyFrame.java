@@ -25,7 +25,6 @@ public class MyFrame extends JFrame{
 		setLocation((screenSize.width - this.getWidth())/2 , (screenSize.height - this.getHeight())/ 2);
 		setTitle("MyFrame");
 
-
 		setResizable(false);
 		setVisible(true);
 	}

@@ -4,11 +4,11 @@ package common;
 
 public class Score{
 	private int score;
-	private int phase;
+	private int phase = 1;
 	private int time;
 
-	public int getScore(){
-		return score;
+	public String getScore(){
+		return String.valueOf(score);
 	}
 
 	public synchronized void addScore(int value){
@@ -23,13 +23,17 @@ public class Score{
 		time += value;
 	}
 
-	public int getPhase() {
-		return phase;
+	public void changePhase(){
+		phase++;
+	}
+
+	public String getPhase() {
+		return new StringBuilder("PHASE ").append(phase).toString();
 	}
 
 	public String getTime(){
 
-		return new StringBuilder(String.valueOf(time/60000)).append(":").append(time/1000).toString();
+		return new StringBuilder(String.format("%02d", time/60000)).append(":").append(String.format("%02d", (time/1000)%60)).toString();
 	}
 
 }
