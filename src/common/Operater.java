@@ -1,14 +1,22 @@
 package common;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.font.TextLayout;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 
@@ -35,6 +43,7 @@ public class Operater {
 
 	// 배경
 	private Image backgroundImage;
+	private BufferedImage pauseBG;
 
 	// 그림을 그릴 패널
 	private JPanel panel;
@@ -47,24 +56,30 @@ public class Operater {
 	private Player player;
 	private Score score; // 점수와 플레이 시간 현재 페이즈의 정보를 가지고 있는 객체
 
+	// 각 스레드의 간격
+	private int makeEnemyInterval = 1000;
+	private int updateInterval = 30;
+	private int playerAttackInterval = 300;
+	private int changePhaseInterval = 4000;
+
 	private int phase = 1; // 현재 페이즈/ 1부터 시작
 	private int phaseMax = 2; // 최대 진행 페이즈
 	private Timer timer = new Timer(); // 페이즈 변환을 위해 사용할 타이머 객체
+	private Timer timer2 = new Timer();
+	private int remainingTime = changePhaseInterval;
+	private int phaseTime = 0;
 
 	// 게임 구동을 위해 사용할 스레드
 	private Thread makeEnemy;
 	private Thread updateAll;
 	private Thread playerAttack;
 
-	// 각 스레드의 간격
-	private int makeEnemyInterval = 1000;
-	private int updateInterval = 30;
-	private int playerAttackInterval = 300;
 
 	// 게임 구동 시 사용할 flag 들
 	private boolean isInChanging = false; // 페이즈가 바뀌고 있는지 확인하는 flag
 	private boolean isGameOver = false;
 	private boolean isGamePause = false;
+	private boolean isChangingPhase = false;
 
 	/**
 	 * 유일한 생성자로 생성 시, list와 각 객체, 필요한 리스너를 패널에 add한다.
@@ -75,7 +90,14 @@ public class Operater {
 		this.width = panel.getWidth();
 		this.height = panel.getHeight();
 
-		backgroundImage = new ImageIcon("background.gif").getImage();
+		backgroundImage = new ImageIcon("image/background.gif").getImage();
+
+		try {
+			pauseBG = ImageIO.read(new File("image/pauseBG.png"));
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		bulletList = new ArrayList<Bullet>();
 		enemyList = new ArrayList<Enemy>();
@@ -84,7 +106,6 @@ public class Operater {
 		player = new Player(new Point(0, height - 100));
 		score = new Score();
 
-		timer.schedule(new ChangePhase(), 4000, 2000);
 
 		panel.addMouseMotionListener(player);
 		panel.addKeyListener(new GamePause());
@@ -116,31 +137,46 @@ public class Operater {
 			makeEnemy.start();
 			updateAll.start();
 			playerAttack.start();
+
+			timer = new Timer();
+			timer2 = new Timer();
+
+			timer.schedule(new ChangePhase(), remainingTime, changePhaseInterval);
+			timer2.schedule(new CheckPlayerDead(), 0, updateInterval);
 		}
 	}
 
 	/**
 	 * 게임을 일시정지 시키는 메소드 모든 스레드들이 끝날 떄까지 기다린다. join 사용
 	 */
-	public void gamePause(){
+	public synchronized void gamePause(){
 
 		isGamePause = true;
 
 		try {
-			makeEnemy.join();
 			updateAll.join();
+			makeEnemy.join();
 			playerAttack.join();
 		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		timer.cancel();
+
+		remainingTime = changePhaseInterval - (score.getTimeInteger() - phaseTime);
+		timer2.cancel();
+
+		if(remainingTime < 0)
+			remainingTime = 0;
+
+		((Graphics2D) panel.getGraphics()).drawImage(pauseBG, 0, 0, null);
 
 	}
 
 	/**
 	 * 게임을 다시 실행시킨다. startGame()을 호출.
 	 */
-	public void gameRestart(){
+	public synchronized void gameRestart(){
 
 		isGamePause = false;
 
@@ -156,13 +192,22 @@ public class Operater {
 	}
 
 	/**
-	 * 플레이어가 죽었는지 확인하여 죽었으면 게임 종료 flag를 true로 한다.
+	 * 게임 종료 flag를 true로 하고 화면에 표시
 	 */
-	private void checkGameOver(){
-		if(player.isDead()){
-			gamePause();
-			isGameOver = true;
-		}
+	private void gameOver(){
+		gamePause();
+		isGameOver = true;
+
+		Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
+
+		Graphics2D g = (Graphics2D) panel.getGraphics();
+
+		TextLayout text = new TextLayout("GAME OVER", font, g.getFontRenderContext());
+		Rectangle2D rect = text.getBounds();
+
+		g.setColor(Color.WHITE);
+		text.draw(g, (width - (float) rect.getWidth())/2, (height - (float) rect.getHeight())/2);
+
 	}
 
 	/**
@@ -170,8 +215,19 @@ public class Operater {
 	 */
 	private void changePhase(){
 		// 나중에 그림 그리는 기능 추가 예정
+
 		score.changePhase();
 		phase++;
+
+		Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
+
+		Graphics2D g = (Graphics2D) panel.getGraphics();
+
+		TextLayout text = new TextLayout(score.getPhase(), font, g.getFontRenderContext());
+		Rectangle2D rect = text.getBounds();
+
+		g.setColor(Color.WHITE);
+		text.draw(g, (width - (float) rect.getWidth())/2, (height - (float) rect.getHeight())/2);
 	}
 
 	/**
@@ -221,7 +277,6 @@ public class Operater {
 				Enemys.deletEnemys(enemyList, itemList, score);
 				Bullets.deletBullets(bulletList);
 				Items.deletItem(itemList, score);
-				checkGameOver();
 
 				score.addTime(updateInterval);
 				panel.repaint();
@@ -273,8 +328,20 @@ public class Operater {
 		@Override
 		public void run(){
 
-			if(flag == PAUSE)
+			if(flag == PAUSE){
 				gamePause();
+
+				Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
+
+				Graphics2D g = (Graphics2D) panel.getGraphics();
+
+				TextLayout text = new TextLayout("PAUSE", font, g.getFontRenderContext());
+				Rectangle2D rect = text.getBounds();
+
+				g.setColor(Color.WHITE);
+				text.draw(g, (width - (float) rect.getWidth())/2, (height - (float) rect.getHeight())/2);
+
+			}
 			else if(flag == RESTART)
 				gameRestart();
 
@@ -288,24 +355,30 @@ public class Operater {
 	 */
 	class ChangePhase extends TimerTask{
 
-
 		@Override
 		public void run() {
 
 			if(phase < phaseMax) {
+
 				new  Thread(){
 					@Override
 					public void run(){
+
+						isChangingPhase = true;
+
 						gamePause();
 						Enemys.changeEnemyVariety();
 						changePhase();
+
 						try {
-							Thread.sleep(1000); // 나중에 작업하기 위한 테스트용 sleep
+							Thread.sleep(2000); // 나중에 작업하기 위한 테스트용 sleep
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 						gameRestart();
+						phaseTime = score.getTimeInteger();
+						isChangingPhase = false;
 					}
 				}.start();
 			}
@@ -313,6 +386,17 @@ public class Operater {
 				timer.cancel();
 		}
 
+	}
+
+	class CheckPlayerDead extends TimerTask{
+
+		@Override
+		public void run(){
+			if(player.isDead()){
+				gameOver();
+				timer2.cancel();
+			}
+		}
 	}
 
 	/**
@@ -323,16 +407,14 @@ public class Operater {
 
 		@Override
 		public void keyPressed(KeyEvent e){
-			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && !isInChanging){
+			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && !isInChanging && !isChangingPhase){
 				if(!isGamePause){
 					isInChanging = true;
-					System.out.println("testPause");
 					new ChangeGameState(PAUSE).start();
 				}
 				else {
 					isInChanging = true;
 					new ChangeGameState(RESTART).start();
-					System.out.println("testRestart");
 				}
 			}
 		}

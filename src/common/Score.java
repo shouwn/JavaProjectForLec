@@ -36,4 +36,9 @@ public class Score{
 		return new StringBuilder(String.format("%02d", time/60000)).append(":").append(String.format("%02d", (time/1000)%60)).toString();
 	}
 
+	public int getTimeInteger(){
+
+		return time;
+	}
+
 }

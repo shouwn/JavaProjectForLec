@@ -2,6 +2,7 @@ package template;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 
@@ -16,24 +17,33 @@ public class MyPanel extends JPanel{
 
 	private JLabel score;
 	private JLabel time;
-	private JLabel phase;
 
 	public MyPanel(){
-		score = new JLabel("0");
-		time = new JLabel("00:00");
-		phase = new JLabel("PHASE 1");
-
-		score.setForeground(Color.WHITE);
-		time.setForeground(Color.WHITE);
-		phase.setForeground(Color.WHITE);
 
 		this.setSize(new Dimension(500, 700));
 		setDoubleBuffered(true);
+		setLayout(null);
 
 		op = new Operater(this);
+
+		Font font = new Font(Font.DIALOG, Font.BOLD, 30);
+
+		score = new JLabel("0");
+		time = new JLabel("00:00");
+
+		score.setForeground(Color.WHITE);
+		time.setForeground(Color.WHITE);
+
+		score.setFont(font);
+		time.setFont(font);
+		score.setPreferredSize(new Dimension(150, 75));
+
+		score.setBounds(420, -10, 150, 75);
+		time.setBounds(220, -10, 150, 75);
+
 		add(score);
 		add(time);
-		add(phase);
+
 		new UpdateLabel().start();
 		this.setFocusable(true);
 		this.requestFocusInWindow();
@@ -53,7 +63,6 @@ public class MyPanel extends JPanel{
 			while(true) {
 				score.setText(op.getScore().getScore());
 				time.setText(op.getScore().getTime());
-				phase.setText(op.getScore().getPhase());
 
 				try {
 					Thread.sleep(30);
