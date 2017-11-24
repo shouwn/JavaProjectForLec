@@ -15,29 +15,36 @@ import item.Items;
 import player.Player;
 
 /**
- * Àû °´Ã¼ÀÇ ¸Ş¼Òµå¸¦ È£ÃâÇØ¼­ Àû °´Ã¼¸¦ ÀüÃ¼ÀûÀ¸·Î °ü¸®ÇÏ´Â Å¬·¡½º
+ * ì  ê°ì²´ì˜ ë©”ì†Œë“œë¥¼ í˜¸ì¶œí•´ì„œ ì  ê°ì²´ë¥¼ ì „ì²´ì ìœ¼ë¡œ ê´€ë¦¬í•˜ëŠ” í´ë˜ìŠ¤
  *
  */
 public class Enemys {
 
-	// Àû °´Ã¼¸¦ »ı¼ºÇÒ ¶§ ¸î Á¾·ù¸¦ ¸¸µé °ÍÀÎÁö °áÁ¤ÇÏ´Â º¯¼ö
+	// ì  ê°ì²´ë¥¼ ìƒì„±í•  ë•Œ ëª‡ ì¢…ë¥˜ë¥¼ ë§Œë“¤ ê²ƒì¸ì§€ ê²°ì •í•˜ëŠ” ë³€ìˆ˜
 	private static int enemyVariety = 1;
-	// ÃÑ ÀÖ´Â ÀûÀÇ Á¾·ù¸¦ ÀúÀåÇÏ´Â Map
+	// ì´ ìˆëŠ” ì ì˜ ì¢…ë¥˜ë¥¼ ì €ì¥í•˜ëŠ” Map
 	private static HashMap<Integer, Enemy> enemyType = new HashMap<Integer, Enemy>();
-	// ÀûÀ» »ı¼ºÇÒ ¶§ »ç¿ëÇÒ ·£´ı °´Ã¼
+	private static HashMap<Integer, Enemy> bossType = new HashMap<>();
+
+	// ì ì„ ìƒì„±í•  ë•Œ ì‚¬ìš©í•  ëœë¤ ê°ì²´
 	private static Random random = new Random();
 
-	// Map¿¡ ÀûÀ» Ãß°¡
+	// Mapì— ì ì„ ì¶”ê°€
 	static {
 		enemyType.put(0, new TypeE01());
 		enemyType.put(1, new TypeE02());
+		enemyType.put(2, new TypeE03());
+		enemyType.put(3, new TypeE04());
+		enemyType.put(4, new TypeE05());
+
+		bossType.put(1, new Boss());
 	}
 
 	/**
-	 * ÀûÀÌ È­¸é ¹ÛÀ¸·Î ³ª°¡°Å³ª ÀûÀÇ »ı¸íÀÌ 0ÀÏ ¶§ ÀûÀ» »èÁ¦ÇÏ´Â ¸Ş¼Òµå
-	 * @param list Àû °´Ã¼°¡ ÀÖ´Â ¸®½ºÆ®
-	 * @param itemList ÀûÀÌ Á×¾úÀ» ¶§ ¾ÆÀÌÅÛÀ» ¸¸µé¾î¼­ Ãß°¡ÇÒ ¸®½ºÆ®
-	 * @param score ÀûÀÌ Á×¾úÀ» ¶§ Á¡¼ö¸¦ ¿Ã¸®±â À§ÇØ ³Ñ°Ü¹ŞÀº Score °´Ã¼
+	 * ì ì´ í™”ë©´ ë°–ìœ¼ë¡œ ë‚˜ê°€ê±°ë‚˜ ì ì˜ ìƒëª…ì´ 0ì¼ ë•Œ ì ì„ ì‚­ì œí•˜ëŠ” ë©”ì†Œë“œ
+	 * @param list ì  ê°ì²´ê°€ ìˆëŠ” ë¦¬ìŠ¤íŠ¸
+	 * @param itemList ì ì´ ì£½ì—ˆì„ ë•Œ ì•„ì´í…œì„ ë§Œë“¤ì–´ì„œ ì¶”ê°€í•  ë¦¬ìŠ¤íŠ¸
+	 * @param score ì ì´ ì£½ì—ˆì„ ë•Œ ì ìˆ˜ë¥¼ ì˜¬ë¦¬ê¸° ìœ„í•´ ë„˜ê²¨ë°›ì€ Score ê°ì²´
 	 */
 	public static synchronized void deletEnemys(List<Enemy> list, List<Item> itemList, Score score) {
 		Enemy e;
@@ -59,18 +66,30 @@ public class Enemys {
 	}
 
 	/**
-	 * ÀûÀ» ¸¸µå´Â ¸Ş¼Òµå
-	 * @param list ¸¸µç ÀûÀ» Ãß°¡ÇÒ ¸®½ºÆ®
-	 * @param area ÀûÀÌ ¸¸µé¾îÁú ¹üÀ§ - °¡·Î ±æÀÌ
+	 * ì ì„ ë§Œë“œëŠ” ë©”ì†Œë“œ
+	 * @param list ë§Œë“  ì ì„ ì¶”ê°€í•  ë¦¬ìŠ¤íŠ¸
+	 * @param area ì ì´ ë§Œë“¤ì–´ì§ˆ ë²”ìœ„ - ê°€ë¡œ ê¸¸ì´
 	 */
 	public static synchronized void makeEnemy(List<Enemy> list, int area) {
 		list.addAll(makeEnemyLine(area));
 	}
 
+
+	public static synchronized Boss makeBoss(List<Enemy> list, int area) {
+		Enemy e = bossType.get(1);
+
+		Boss boss = (Boss) e.makeSelf(new Point((area - e.getWidth())/2, 0));
+		boss.setArea(area);
+
+		list.add(boss);
+		return boss;
+	}
+
+
 	/**
-	 * Àû °´Ã¼µéÀ» ±×¸®´Â ¸Ş¼Òµå
-	 * @param list ±×¸± Àû °´Ã¼°¡ ÀÖ´Â ¸®½ºÆ®
-	 * @param g ±×¸®±â À§ÇÑ {@link Graphics2D} °´Ã¼
+	 * ì  ê°ì²´ë“¤ì„ ê·¸ë¦¬ëŠ” ë©”ì†Œë“œ
+	 * @param list ê·¸ë¦´ ì  ê°ì²´ê°€ ìˆëŠ” ë¦¬ìŠ¤íŠ¸
+	 * @param g ê·¸ë¦¬ê¸° ìœ„í•œ {@link Graphics2D} ê°ì²´
 	 */
 	public static synchronized void paintEnemys(List<Enemy> list, Graphics2D g){
 		for(int i = 0; i < list.size(); i++) {
@@ -80,8 +99,8 @@ public class Enemys {
 	}
 
 	/**
-	 * Àû °´Ã¼µéÀÌ ÀÚ½ÅÀÇ ÆĞÅÏ¿¡ µû¶ó ÀÌµ¿ÇÏ°Ô ÇÏ´Â ¸Ş¼Òµå
-	 * @param list ÀÌµ¿ ½ÃÅ³ Àû °´Ã¼°¡ ÀÖ´Â ¸®½ºÆ®
+	 * ì  ê°ì²´ë“¤ì´ ìì‹ ì˜ íŒ¨í„´ì— ë”°ë¼ ì´ë™í•˜ê²Œ í•˜ëŠ” ë©”ì†Œë“œ
+	 * @param list ì´ë™ ì‹œí‚¬ ì  ê°ì²´ê°€ ìˆëŠ” ë¦¬ìŠ¤íŠ¸
 	 */
 	public static synchronized void moveEnemys(List<Enemy> list){
 		for(int i = 0; i < list.size(); i++){
@@ -90,9 +109,9 @@ public class Enemys {
 	}
 
 	/**
-	 * Àû °´Ã¼µéÀÌ È­¸é ¹ÛÀ¸·Î ³ª°¬´ÂÁö È®ÀÎÇÏ´Â ¸Ş¼Òµå
-	 * @param list Àû °´Ã¼°¡ µé¾îÀÖ´Â ¸®½ºÆ®
-	 * @param end È­¸éÀÇ °æ°è - È­¸é ³ôÀÌ
+	 * ì  ê°ì²´ë“¤ì´ í™”ë©´ ë°–ìœ¼ë¡œ ë‚˜ê°”ëŠ”ì§€ í™•ì¸í•˜ëŠ” ë©”ì†Œë“œ
+	 * @param list ì  ê°ì²´ê°€ ë“¤ì–´ìˆëŠ” ë¦¬ìŠ¤íŠ¸
+	 * @param end í™”ë©´ì˜ ê²½ê³„ - í™”ë©´ ë†’ì´
 	 */
 	public static synchronized void checkOutOfScreen(List<Enemy> list, int end){
 		Enemy e;
@@ -107,9 +126,9 @@ public class Enemys {
 	}
 
 	/**
-	 * ÀûÀÌ ÃÑ¾Ë°ú Ãæµ¹ÇÏ¿´´ÂÁö È®ÀÎÇÏ´Â ¸Ş¼Òµå
-	 * @param enemyList Àû °´Ã¼°¡ µé¾îÀÖ´Â ¸®½ºÆ®
-	 * @param bulletList ÃÑ¾Ë °´Ã¼°¡ µé¾îÀÖ´Â ¸®½ºÆ®
+	 * ì ì´ ì´ì•Œê³¼ ì¶©ëŒí•˜ì˜€ëŠ”ì§€ í™•ì¸í•˜ëŠ” ë©”ì†Œë“œ
+	 * @param enemyList ì  ê°ì²´ê°€ ë“¤ì–´ìˆëŠ” ë¦¬ìŠ¤íŠ¸
+	 * @param bulletList ì´ì•Œ ê°ì²´ê°€ ë“¤ì–´ìˆëŠ” ë¦¬ìŠ¤íŠ¸
 	 */
 	public static synchronized void checkEnemysDamaged(List<Enemy> enemyList, List<Bullet> bulletList){
 
@@ -120,9 +139,9 @@ public class Enemys {
 	}
 
 	/**
-	 * ÀûÀÌ ÇÃ·¹ÀÌ¾î¿¡°Ô ´ë¹ÌÁö¸¦ Áá´ÂÁö È®ÀÎÇÏ´Â ¸Ş¼Òµå
-	 * @param list Àû °´Ã¼°¡ µé¾îÀÖ´Â ¸®½ºÆ®
-	 * @param player ÇÃ·¹ÀÌ¾î °´Ã¼
+	 * ì ì´ í”Œë ˆì´ì–´ì—ê²Œ ëŒ€ë¯¸ì§€ë¥¼ ì¤¬ëŠ”ì§€ í™•ì¸í•˜ëŠ” ë©”ì†Œë“œ
+	 * @param list ì  ê°ì²´ê°€ ë“¤ì–´ìˆëŠ” ë¦¬ìŠ¤íŠ¸
+	 * @param player í”Œë ˆì´ì–´ ê°ì²´
 	 */
 	public static synchronized void checkEnemyAttackedPlayer(List<Enemy> list, Player player){
 		Enemy e;
@@ -141,25 +160,31 @@ public class Enemys {
 	}
 
 	/**
-	 * ÀûÀ» ÇÑ ÁÙ ´ÜÀ§·Î ¸¸µå´Â ¸Ş¼Òµå
-	 * @param area ¸¸µé ¼ö ÀÖ´Â ¹üÀ§ - È­¸é °¡·Î
-	 * @return ¸¸µé¾îÁø ÁÙÀ» ¸®½ºÆ®·Î ¹İÈ¯ÇÔ
+	 * ì ì„ í•œ ì¤„ ë‹¨ìœ„ë¡œ ë§Œë“œëŠ” ë©”ì†Œë“œ
+	 * @param area ë§Œë“¤ ìˆ˜ ìˆëŠ” ë²”ìœ„ - í™”ë©´ ê°€ë¡œ
+	 * @return ë§Œë“¤ì–´ì§„ ì¤„ì„ ë¦¬ìŠ¤íŠ¸ë¡œ ë°˜í™˜í•¨
 	 */
 	private static List<Enemy> makeEnemyLine(int area){
 
 		List<Enemy> line = new ArrayList<Enemy>();
-		Random random = new Random();
 		Enemy e = enemyType.get(random.nextInt(enemyVariety));
 
 		int range = area - e.getWidth() * 2;
 		int startLine = 0;
+		int randomRange;
 
 		while(true) {
 
 			if(range <= 0)
 				break;
 
-			startLine += random.nextInt(range);
+			randomRange = random.nextInt(range);
+
+			if(randomRange > 120)
+				randomRange = 120;
+
+			startLine += randomRange;
+
 
 			if(startLine + e.getWidth() > area)
 				break;
@@ -176,9 +201,13 @@ public class Enemys {
 	}
 
 	/**
-	 * ÀûÀÌ ¸¸µé¾îÁö´Â Á¾·ù¸¦ Áõ°¡½ÃÅ°´Â ¸Ş¼Òµå
+	 * ì ì´ ë§Œë“¤ì–´ì§€ëŠ” ì¢…ë¥˜ë¥¼ ì¦ê°€ì‹œí‚¤ëŠ” ë©”ì†Œë“œ
 	 */
 	public static void changeEnemyVariety() {
-		enemyVariety++;
+
+		if(enemyVariety + 2 > enemyType.size())
+			enemyVariety = enemyType.size();
+		else
+			enemyVariety += 2;
 	}
 }

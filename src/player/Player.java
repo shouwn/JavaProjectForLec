@@ -22,26 +22,30 @@ public class Player implements MouseMotionListener{
 	private Bullet currentBulletType;
 	private List<Bullet> bulletList;
 	private Point point;
+
 	private BufferedImage currentImage;
 	private static BufferedImage[] images = new BufferedImage[3];
-	private static BufferedImage[] damagedImages; 
-	private AttackedImage attackedImage;
+	private static BufferedImage[] damagedImages;
 
+	private AttackedImage attackedImage;
+	private ChangeItemBullet changeItemBullet;
+
+	private boolean isChangedBullet = false;
 	private boolean isDamagedImages = false;
 	private int width, height;
 	private int life = 3;
 
 	static{
 		try {
-			images[0] = ImageIO.read(new File("PlayerGreen.gif"));
-			images[1] = ImageIO.read(new File("PlayerOrange.gif"));
-			images[2] = ImageIO.read(new File("PlayerRed.gif"));
+			images[0] = ImageIO.read(new File("image/Player/PlayerGreen.gif"));
+			images[1] = ImageIO.read(new File("image/Player/PlayerOrange.gif"));
+			images[2] = ImageIO.read(new File("image/Player/PlayerRed.gif"));
 		} catch (IOException e) {
 			System.err.println("Fail Load Player Image");
 			System.exit(0);
 		}
 
-		damagedImages = Images.readImages("image/DamagedPlayer");
+		damagedImages = Images.readImages("image/Player/DamagedPlayer");
 	}
 
 	public Player(Point point){
@@ -55,7 +59,7 @@ public class Player implements MouseMotionListener{
 		this.width = currentImage.getWidth();
 		this.height = currentImage.getHeight();
 	}
-	
+
 	public synchronized void setCurrentImage(BufferedImage img){
 		currentImage = img;
 	}
@@ -64,15 +68,18 @@ public class Player implements MouseMotionListener{
 		return life <= 0;
 	}
 
-	public synchronized void recoverLife(){
-		if(++life >= 3)
-			life--;
+	public synchronized void recoverLife(int value){
+		life += value;
+		if(life >= 3)
+			life = 3;
+
+		setCurrentImage(images[3 - life]);
 	}
 
 	public synchronized void fallLife(){
 		if(--life >= 1){
 			setCurrentImage(images[3 - life]);
-			
+
 			if(!isDamagedImages){
 				isDamagedImages = true;
 				attackedImage = new AttackedImage();
@@ -84,7 +91,13 @@ public class Player implements MouseMotionListener{
 	}
 
 	public void changeBulletTypeTo(Bullet bulletType){
-		currentBulletType = bulletType;
+		if(!isChangedBullet){
+			isChangedBullet = true;
+			changeItemBullet = new ChangeItemBullet(bulletType);
+			changeItemBullet.start();
+		}
+		else
+			changeItemBullet.restart(bulletType);
 	}
 
 	public void drawSelf(Graphics2D g){
@@ -126,7 +139,7 @@ public class Player implements MouseMotionListener{
 	}
 
 	class AttackedImage extends Thread{
-		private int count = 0; 
+		private int count = 0;
 		private final int maxCount = 20;
 		private int current = 0;
 
@@ -139,24 +152,63 @@ public class Player implements MouseMotionListener{
 			while(count < maxCount){
 				setCurrentImage(damagedImages[current++]);
 				current = current % damagedImages.length;
-				
+
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
+
 				count++;
 			}
-			
+
 			isDamagedImages = false;
 			setCurrentImage(originalImage);
 		}
-		
+
 		public void restart(BufferedImage original){
 			originalImage = original;
 			count = 0;
 		}
 	}
+
+	class ChangeItemBullet extends Thread{
+		private int count = 0;
+		private final int maxCount = 20;
+		private Bullet originalBulletType;
+		private Bullet changedBulletType;
+
+		public ChangeItemBullet(Bullet changedBulletType){
+			this.originalBulletType = currentBulletType;
+			this.changedBulletType = changedBulletType;
+
+		}
+
+		@Override
+		public void run() {
+			while(count < maxCount){
+				currentBulletType = changedBulletType;
+
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				count++;
+			}
+
+			isChangedBullet = false;
+			currentBulletType = originalBulletType;
+		}
+
+		public void restart(Bullet changedBulletType){
+			this.changedBulletType = changedBulletType;
+			count = 0;
+		}
+
+	}
+
 }

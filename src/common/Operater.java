@@ -6,6 +6,8 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -13,8 +15,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -22,6 +22,7 @@ import javax.swing.JPanel;
 
 import bullet.Bullet;
 import bullet.Bullets;
+import enemy.Boss;
 import enemy.Enemy;
 import enemy.Enemys;
 import item.Item;
@@ -37,9 +38,9 @@ import player.Player;
 
 public class Operater {
 
-	// 게임 멈추거나 할 때 매개변수로 사용할 상수
-	private static final int PAUSE = -1;
-	private static final int RESTART = 1;
+	private String information;
+
+	private Boss boss;
 
 	// 배경
 	private Image backgroundImage;
@@ -60,26 +61,25 @@ public class Operater {
 	private int makeEnemyInterval = 1000;
 	private int updateInterval = 30;
 	private int playerAttackInterval = 300;
-	private int changePhaseInterval = 4000;
+	private int changePhaseInterval = 10000;
 
 	private int phase = 1; // 현재 페이즈/ 1부터 시작
-	private int phaseMax = 2; // 최대 진행 페이즈
-	private Timer timer = new Timer(); // 페이즈 변환을 위해 사용할 타이머 객체
-	private Timer timer2 = new Timer();
-	private int remainingTime = changePhaseInterval;
-	private int phaseTime = 0;
+	private int phaseMax = 4; // 최대 진행 페이즈
 
 	// 게임 구동을 위해 사용할 스레드
 	private Thread makeEnemy;
 	private Thread updateAll;
 	private Thread playerAttack;
-
+	private Checker checker;
 
 	// 게임 구동 시 사용할 flag 들
 	private boolean isInChanging = false; // 페이즈가 바뀌고 있는지 확인하는 flag
 	private boolean isGameOver = false;
 	private boolean isGamePause = false;
-	private boolean isChangingPhase = false;
+	private boolean isNeedPaintInformation = false;
+	private boolean isBossPhase = false;
+
+	private Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
 
 	/**
 	 * 유일한 생성자로 생성 시, list와 각 객체, 필요한 리스너를 패널에 add한다.
@@ -106,9 +106,12 @@ public class Operater {
 		player = new Player(new Point(0, height - 100));
 		score = new Score();
 
+		checker = new Checker();
+		checker.start();
 
 		panel.addMouseMotionListener(player);
 		panel.addKeyListener(new GamePause());
+		panel.addMouseListener(new GameMousePause());
 	}
 
 	/**
@@ -122,6 +125,16 @@ public class Operater {
 		Enemys.paintEnemys(enemyList, g);
 		Items.paintItems(itemList, g);
 		player.drawSelf(g);
+
+		if(isNeedPaintInformation) {
+			g.drawImage(pauseBG, 0, 0, null);
+			TextLayout text = new TextLayout(information, font, g.getFontRenderContext());
+			Rectangle2D rect = text.getBounds();
+
+			g.setColor(Color.WHITE);
+			text.draw(g, (width - (float) rect.getWidth())/2, (height - (float) rect.getHeight())/2);
+			isNeedPaintInformation = false;
+		}
 	}
 
 	/**
@@ -134,15 +147,9 @@ public class Operater {
 			updateAll = new UpdateAll();
 			playerAttack = new PlayerAttack();
 
-			makeEnemy.start();
 			updateAll.start();
 			playerAttack.start();
-
-			timer = new Timer();
-			timer2 = new Timer();
-
-			timer.schedule(new ChangePhase(), remainingTime, changePhaseInterval);
-			timer2.schedule(new CheckPlayerDead(), 0, updateInterval);
+			makeEnemy.start();
 		}
 	}
 
@@ -154,23 +161,13 @@ public class Operater {
 		isGamePause = true;
 
 		try {
-			updateAll.join();
 			makeEnemy.join();
+			updateAll.join();
 			playerAttack.join();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
-		timer.cancel();
-
-		remainingTime = changePhaseInterval - (score.getTimeInteger() - phaseTime);
-		timer2.cancel();
-
-		if(remainingTime < 0)
-			remainingTime = 0;
-
-		((Graphics2D) panel.getGraphics()).drawImage(pauseBG, 0, 0, null);
-
+		panel.repaint();
 	}
 
 	/**
@@ -192,25 +189,6 @@ public class Operater {
 	}
 
 	/**
-	 * 게임 종료 flag를 true로 하고 화면에 표시
-	 */
-	private void gameOver(){
-		gamePause();
-		isGameOver = true;
-
-		Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
-
-		Graphics2D g = (Graphics2D) panel.getGraphics();
-
-		TextLayout text = new TextLayout("GAME OVER", font, g.getFontRenderContext());
-		Rectangle2D rect = text.getBounds();
-
-		g.setColor(Color.WHITE);
-		text.draw(g, (width - (float) rect.getWidth())/2, (height - (float) rect.getHeight())/2);
-
-	}
-
-	/**
 	 * 페이즈를 바꾸는 메소드
 	 */
 	private void changePhase(){
@@ -219,15 +197,16 @@ public class Operater {
 		score.changePhase();
 		phase++;
 
-		Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
+		information = score.getPhase();
 
-		Graphics2D g = (Graphics2D) panel.getGraphics();
+		if(phase == phaseMax){
+			information = "BOSS";
+			boss = Enemys.makeBoss(enemyList, width);
+			makeEnemyInterval /= 2;
+			isBossPhase = true;
+		}
 
-		TextLayout text = new TextLayout(score.getPhase(), font, g.getFontRenderContext());
-		Rectangle2D rect = text.getBounds();
-
-		g.setColor(Color.WHITE);
-		text.draw(g, (width - (float) rect.getWidth())/2, (height - (float) rect.getHeight())/2);
+		isNeedPaintInformation = true;
 	}
 
 	/**
@@ -278,7 +257,6 @@ public class Operater {
 				Bullets.deletBullets(bulletList);
 				Items.deletItem(itemList, score);
 
-				score.addTime(updateInterval);
 				panel.repaint();
 
 				try {
@@ -309,93 +287,89 @@ public class Operater {
 		}
 	}
 
-	/**
-	 * 게임을 일시정지 시키거나 다시 시작시키는 스레드
-	 * 생성 시 flag를 받아서 둘 중 어떤 일을 할 것인지 정한다.
-	 */
-	class ChangeGameState extends Thread{
+	class Checker extends Thread{
 
-		private int flag;
+		public static final int PAUSE = -1;
+		public static final int RESTART = 1;
+		public static final int NOTHING = 0;
 
-		/**
-		 *
-		 * @param flag 일시정지 시킬 것인지, 다시 시작할 것인지 정하는 flag
-		 */
-		public ChangeGameState(int flag){
-			this.flag = flag;
-		}
+		private int order = NOTHING;
 
-		@Override
-		public void run(){
-
-			if(flag == PAUSE){
-				gamePause();
-
-				Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
-
-				Graphics2D g = (Graphics2D) panel.getGraphics();
-
-				TextLayout text = new TextLayout("PAUSE", font, g.getFontRenderContext());
-				Rectangle2D rect = text.getBounds();
-
-				g.setColor(Color.WHITE);
-				text.draw(g, (width - (float) rect.getWidth())/2, (height - (float) rect.getHeight())/2);
-
-			}
-			else if(flag == RESTART)
-				gameRestart();
-
-			isInChanging = false;
-		}
-	}
-
-	/**
-	 * 일정 시간마다 페이즈를 바꾸는 타임 테스크
-	 *
-	 */
-	class ChangePhase extends TimerTask{
+		private int remainingTime = changePhaseInterval;
 
 		@Override
 		public void run() {
 
-			if(phase < phaseMax) {
+			while(!isGameOver) {
+				if(player.isDead()) {
+					gamePause();
+					isGameOver = true;
 
-				new  Thread(){
-					@Override
-					public void run(){
+					information = "GAME OVER";
+					isNeedPaintInformation = true;
+				}
 
-						isChangingPhase = true;
+				switch(order) {
+				case PAUSE:
+					gamePause();
+
+					information = "PAUSE";
+					isNeedPaintInformation = true;
+
+					break;
+				case RESTART:
+					gameRestart();
+
+					break;
+				default:
+					if(!isGamePause) {
+						score.addTime(updateInterval);
+						remainingTime -= updateInterval;
+					}
+
+					if(isBossPhase && boss.checkDead()){
+						gamePause();
+
+						information = "CLEAR";
+						isNeedPaintInformation = true;
+						isGameOver = true;
+					}
+
+
+					if(remainingTime <= 0 && phase < phaseMax) {
+
+						remainingTime = changePhaseInterval;
 
 						gamePause();
 						Enemys.changeEnemyVariety();
 						changePhase();
 
 						try {
-							Thread.sleep(2000); // 나중에 작업하기 위한 테스트용 sleep
+							Thread.sleep(2000);
 						} catch (InterruptedException e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
+
 						gameRestart();
-						phaseTime = score.getTimeInteger();
-						isChangingPhase = false;
 					}
-				}.start();
+					break;
+				}
+
+				isInChanging = false;
+				order = NOTHING;
+
+				try {
+					Thread.sleep(updateInterval);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
-			else
-				timer.cancel();
 		}
 
-	}
-
-	class CheckPlayerDead extends TimerTask{
-
-		@Override
-		public void run(){
-			if(player.isDead()){
-				gameOver();
-				timer2.cancel();
-			}
+		public void setOrder(int order) {
+			this.order = order;
 		}
 	}
 
@@ -407,17 +381,37 @@ public class Operater {
 
 		@Override
 		public void keyPressed(KeyEvent e){
-			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && !isInChanging && !isChangingPhase){
+			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && !isInChanging){
 				if(!isGamePause){
 					isInChanging = true;
-					new ChangeGameState(PAUSE).start();
+					checker.setOrder(Checker.PAUSE);
 				}
 				else {
 					isInChanging = true;
-					new ChangeGameState(RESTART).start();
+					checker.setOrder(Checker.RESTART);
 				}
 			}
 		}
+	}
+
+	class GameMousePause extends MouseAdapter{
+		@Override
+		public void mouseExited(MouseEvent e){
+			if(!isInChanging && !isGamePause){
+				isInChanging = true;
+				checker.setOrder(Checker.PAUSE);
+			}
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e){
+			if(!isInChanging && isGamePause){
+				isInChanging = true;
+				checker.setOrder(Checker.RESTART);
+			}
+		}
+
+
 	}
 
 }

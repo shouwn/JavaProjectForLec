@@ -20,30 +20,30 @@ public class TypeI01 implements Item{
 	private Point point;
 	private boolean isUseful = true;
 	private boolean isOutOfScreen = false;
-	
+
 	private static BufferedImage image;
-	
+
 	static{
 		try {
-			image = ImageIO.read(new File("CoolPeaceLarge.png"));
+			image = ImageIO.read(new File("image/Item/CoolPeaceLarge.png"));
 		} catch (IOException e) {
-			System.err.println("Fail Load Bullet Image");
+			System.err.println("Fail Load Item Type01 Image");
 			System.exit(0);
 		}
 	}
-	
+
 	public TypeI01(){
 	}
-	
+
 	public TypeI01(Point point){
 		speed = 20;
 		gravity = 2;
-		score = 20;
+		score = 0;
 		this.point = point;
 	}
 
 	@Override
-	public void drawSelf(Graphics2D g) {		
+	public void drawSelf(Graphics2D g) {
 		g.drawImage(image, AffineTransform.getTranslateInstance(point.getX(), point.getY()), null);
 	}
 
@@ -70,7 +70,7 @@ public class TypeI01 implements Item{
 
 	@Override
 	public void affectTo(Player player) {
-		// this item just raise the score
+		player.recoverLife(2);
 	}
 
 	@Override
@@ -80,18 +80,18 @@ public class TypeI01 implements Item{
 
 	@Override
 	public boolean isCrashed(Player player) {
-		
+
 		if(!isUseful())
 			return false;
-		
+
 		if(Points.checkAreaInArea(
-				player.getPoint(), 
+				player.getPoint(),
 				new Point(player.getPoint()).add(player.getWidth(), player.getHeight()),
-				this.point, 
+				this.point,
 				new Point(this.point).add(image.getWidth(), image.getHeight())))
-			
+
 			return true;
-		
+
 		return false;
 	}
 
@@ -146,5 +146,5 @@ public class TypeI01 implements Item{
 	public boolean isOutOfScreen() {
 		return isOutOfScreen;
 	}
-	
+
 }

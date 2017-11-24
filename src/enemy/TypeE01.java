@@ -17,7 +17,7 @@ import item.Items;
 import player.Player;
 
 public class TypeE01 implements Enemy{
-	
+
 	private int score;
 	private int life;
 	private Point point;
@@ -26,28 +26,30 @@ public class TypeE01 implements Enemy{
 	private static Map<Item, Integer> eachItemProbability = new HashMap<Item, Integer>();
 	private boolean isOutOfScreen = false;
 	private static BufferedImage image;
-	
+
 	static {
 		try {
-			image = ImageIO.read(new File("TteokBokki.gif"));
+			image = ImageIO.read(new File("image/Enemy/TypeE01.gif"));
 		} catch (IOException e) {
-			System.err.println("Fail Load Bullet Image");
+			System.err.println("Fail Load TypeE01 Image");
 			System.exit(0);
 		}
-		
-		eachItemProbability.put(Items.getItemType(1), 100);
+
+		eachItemProbability.put(Items.getItemType(1), 5);
+		eachItemProbability.put(Items.getItemType(2), 10);
+		eachItemProbability.put(Items.getItemType(0), 40);
 	}
-	
+
 	public TypeE01() {
-		
+
 	}
-	
+
 	public TypeE01(Point point) {
 		score = 10;
 		speed = 10;
 		life = 1;
-		itemProbability = 30;
-		
+		itemProbability = 100;
+
 		this.point = point;
 	}
 
@@ -55,7 +57,7 @@ public class TypeE01 implements Enemy{
 	public Enemy makeSelf(Point point) {
 		return new TypeE01(point);
 	}
-	
+
 	@Override
 	public void moveSelf() {
 		point.move(0, -speed);
@@ -68,18 +70,18 @@ public class TypeE01 implements Enemy{
 
 	@Override
 	public boolean isCrashed(Player player) {
-		
+
 		if(checkDead())
 			return false;
-		
+
 		if(Points.checkAreaInArea(
-				player.getPoint(), 
+				player.getPoint(),
 				new Point(player.getPoint()).add(player.getWidth(), player.getHeight()),
-				this.point, 
+				this.point,
 				new Point(this.point).add(getWidth(), getHeight())))
-			
+
 			return true;
-		
+
 		return false;
 	}
 
@@ -97,12 +99,12 @@ public class TypeE01 implements Enemy{
 	public void setDead() {
 		life = 0;
 	}
-	
+
 	@Override
 	public Point getPoint(){
 		return point;
 	}
-	
+
 	@Override
 	public int getWidth() {
 		return image.getWidth();

@@ -27,30 +27,31 @@ public class TypeE02 implements Enemy{
 	private boolean isOutOfScreen = false;
 	private static BufferedImage[] images = new BufferedImage[2];
 	private BufferedImage currentImage;
-	
+
 	static {
 		try {
-			images[0] = ImageIO.read(new File("TypeE02.gif"));
-			images[1] = ImageIO.read(new File("TypeE02_1.gif"));
+			images[0] = ImageIO.read(new File("image/Enemy/TypeE02.gif"));
+			images[1] = ImageIO.read(new File("image/Enemy/TypeE02_1.gif"));
 		} catch (IOException e) {
-			System.err.println("Fail Load Bullet Image");
+			System.err.println("Fail Load TypeE02 Image");
 			System.exit(0);
 		}
 
-		eachItemProbability.put(Items.getItemType(0), 100);
+		eachItemProbability.put(Items.getItemType(1), 5);
+		eachItemProbability.put(Items.getItemType(2), 10);
 	}
-	
+
 	public TypeE02() {
-		
+
 	}
-	
+
 	public TypeE02(Point point) {
 		currentImage = images[0];
 		score = 20;
 		speed = 10;
 		life = 2;
-		itemProbability = 50;
-		
+		itemProbability = 100;
+
 		this.point = point;
 	}
 
@@ -58,7 +59,7 @@ public class TypeE02 implements Enemy{
 	public Enemy makeSelf(Point point) {
 		return new TypeE02(point);
 	}
-	
+
 	@Override
 	public void moveSelf() {
 		point.move(0, -speed);
@@ -72,18 +73,18 @@ public class TypeE02 implements Enemy{
 
 	@Override
 	public boolean isCrashed(Player player) {
-		
+
 		if(checkDead())
 			return false;
-		
+
 		if(Points.checkAreaInArea(
-				player.getPoint(), 
+				player.getPoint(),
 				new Point(player.getPoint()).add(player.getWidth(), player.getHeight()),
-				this.point, 
+				this.point,
 				new Point(this.point).add(getWidth(), getHeight())))
-			
+
 			return true;
-		
+
 		return false;
 	}
 
@@ -102,12 +103,12 @@ public class TypeE02 implements Enemy{
 	public void setDead() {
 		life = 0;
 	}
-	
+
 	@Override
 	public Point getPoint(){
 		return point;
 	}
-	
+
 	@Override
 	public int getWidth() {
 		return images[0].getWidth();

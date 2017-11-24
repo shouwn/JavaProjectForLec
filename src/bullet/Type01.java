@@ -23,7 +23,7 @@ public class Type01 implements Bullet{
 
 	static {
 		try {
-			image = ImageIO.read(new File("Fork.gif"));
+			image = ImageIO.read(new File("image/Fork.gif"));
 		} catch (IOException e) {
 			System.err.println("Fail Load Bullet Image");
 			System.exit(0);
