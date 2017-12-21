@@ -13,12 +13,14 @@ public interface Item {
 	void moveSelf();
 	Item makeSelf(Point point);
 	
+	void setOutOfScreen();
 	void setUseless();
 	int getScore();
 	Point getPoint();
 	
 	void affectTo(Player player);
 	
+	boolean isOutOfScreen();
 	boolean isUseful();
 	boolean isCrashed(Player player);
 }

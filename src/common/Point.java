@@ -1,5 +1,6 @@
 package common;
 
+// 게임 전반에서 좌표를 계산하기 쉽게 하기 위한 객체
 public class Point {
 	private float x;
 	private float y;
