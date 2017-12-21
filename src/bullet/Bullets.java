@@ -1,10 +1,13 @@
 package bullet;
 
 import java.awt.Graphics2D;
+import java.io.File;
 import java.util.List;
 
 import common.Point;
+import common.Sound;
 import enemy.Enemy;
+import template.StartFrame;
 
 public class Bullets {
 
@@ -60,6 +63,7 @@ public class Bullets {
 				e.fallLife();
 
 				if(e.checkDead())
+					new Sound(Sound.ENEMYDEAD).playMusic(false);
 					return e.getScore();
 			}
 		}

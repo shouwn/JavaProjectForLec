@@ -31,19 +31,16 @@ public class TypeE05 implements Enemy{
 	static {
 		try {
 			images[0] = ImageIO.read(new File("image/Enemy/TypeE05.gif"));
-			images[1] = ImageIO.read(new File("image/Enemy/TypeE05_1.gif"));
-			images[2] = ImageIO.read(new File("image/Enemy/TypeE05_2.gif"));
+
 		} catch (IOException e) {
 			System.err.println("Fail Load TypeE05 Image");
 			System.exit(0);
 		}
 
-		eachItemProbability.put(Items.getItemType(1), 5);
-		eachItemProbability.put(Items.getItemType(2), 10);
-		eachItemProbability.put(Items.getItemType(6), 20);
-		eachItemProbability.put(Items.getItemType(5), 30);
-		eachItemProbability.put(Items.getItemType(4), 20);
-		eachItemProbability.put(Items.getItemType(3), 10);
+		eachItemProbability.put(Items.getItemType(Items.ITEM_FORK), 25);
+		eachItemProbability.put(Items.getItemType(Items.COOL_PEACE_LARGE), 25);
+		eachItemProbability.put(Items.getItemType(Items.COOL_PEACE), 25);
+		eachItemProbability.put(Items.getItemType(Items.RICE_BALL), 25);
 	}
 
 	public TypeE05() {
@@ -53,8 +50,8 @@ public class TypeE05 implements Enemy{
 	public TypeE05(Point point) {
 		currentImage = images[0];
 		score = 150;
-		speed = 18;
-		life = 3;
+		speed = 25;
+		life = 5;
 		itemProbability = 100;
 
 		this.point = point;
@@ -96,7 +93,7 @@ public class TypeE05 implements Enemy{
 	@Override
 	public void fallLife() {
 		if(--life >= 1)
-			currentImage = images[3 - life];
+			currentImage = images[0];
 	}
 
 	@Override
@@ -121,7 +118,7 @@ public class TypeE05 implements Enemy{
 
 	@Override
 	public int getHeight() {
-		return images[1].getHeight();
+		return images[0].getHeight();
 	}
 
 	@Override

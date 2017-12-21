@@ -6,8 +6,6 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.font.TextLayout;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
@@ -28,13 +26,7 @@ import enemy.Enemys;
 import item.Item;
 import item.Items;
 import player.Player;
-
-/**
- * 사용중인 스레드는 타이머 스케쥴러까지 포함하여 총 5개. 그 중 3개는 게임 구동을 위한 스레드이고
- * 그 외에 두 개는 각각 페이즈 변경을 위한 타이머 테스크, 일시정지를 위한 스레드가 있다.
- * 생성시 매개변수로 JPanel을 받아 그 패널에 그림을 그린다.
- *
- */
+import template.GamePanel;
 
 public class Operater {
 
@@ -61,63 +53,74 @@ public class Operater {
 	private int makeEnemyInterval = 1000;
 	private int updateInterval = 30;
 	private int playerAttackInterval = 300;
-	private int changePhaseInterval = 10000;
+	private int changePhaseInterval = 30000;
 
 	private int phase = 1; // 현재 페이즈/ 1부터 시작
 	private int phaseMax = 4; // 최대 진행 페이즈
 
-	// 게임 구동을 위해 사용할 스레드
-	private Thread makeEnemy;
-	private Thread updateAll;
-	private Thread playerAttack;
-	private Checker checker;
+	// 게임 구동을 위해 사용할 스레드 4개
+	private Thread makeEnemy; // 적을 만드는 스레드
+	private Thread updateAll; // 모든 구성요소의 위치와 피격 판정을 하는 스레드
+	private Thread playerAttack; // 플레이어의 공격을 위한 스레드
+	private Checker checker; // 게임 페이즈가 바뀌었는지, 일시정지인지 게임이 끝났는지 확인하는 스레드
 
 	// 게임 구동 시 사용할 flag 들
 	private boolean isInChanging = false; // 페이즈가 바뀌고 있는지 확인하는 flag
 	private boolean isGameOver = false;
 	private boolean isGamePause = false;
-	private boolean isNeedPaintInformation = false;
-	private boolean isBossPhase = false;
+	private boolean isNeedPaintInformation = false; // 일시정지시 상태 정보를 표시할 필요가 있는지 필요한가
+	private boolean isBossPhase = false; 
 
+	//공통적으로 사용할 폰트
 	private Font font = new Font(Font.SANS_SERIF, Font.BOLD, 60);
 
-	/**
-	 * 유일한 생성자로 생성 시, list와 각 객체, 필요한 리스너를 패널에 add한다.
-	 * @param panel 이 게임이 사용하는 패널
-	 */
+	// 게임 내에 사용할 bgm들
+	private Sound[] bgms = new Sound[5];
+	
+	// 생성자, 파라메터로 이 게임을 그릴 패널을 넘겨받음
 	public Operater(JPanel panel){
 		this.panel = panel;
 		this.width = panel.getWidth();
 		this.height = panel.getHeight();
-
+		
+		// 배경 이미지 로드
 		backgroundImage = new ImageIcon("image/background.gif").getImage();
 
+		// 게임 멈췄을 때 이미지 로드
 		try {
 			pauseBG = ImageIO.read(new File("image/pauseBG.png"));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
+		
+		// 사용할 bgms들을 배정
+		bgms[0] = new Sound(Sound.STAGECLEAR);
+		bgms[1] = new Sound(Sound.MAINTHEME);
+		bgms[2] = new Sound(Sound.STAGE2);
+		bgms[3] = new Sound(Sound.STAGE3);
+		bgms[4] = new Sound(Sound.BOSS);
+		
+		// 적 생성 갯수를 초기화
+		Enemys.resetVariety();
+		
 		bulletList = new ArrayList<Bullet>();
 		enemyList = new ArrayList<Enemy>();
 		itemList = new ArrayList<Item>();
 
-		player = new Player(new Point(0, height - 100));
+		player = new Player(new Point(0, height - 50));
 		score = new Score();
-
+		
 		checker = new Checker();
 		checker.start();
-
-		panel.addMouseMotionListener(player);
-		panel.addKeyListener(new GamePause());
-		panel.addMouseListener(new GameMousePause());
+		
+		bgms[phase].playMusic(false);
+		
+		panel.addMouseMotionListener(player); // 플레이어 움직임을 위한  리스너
+		panel.addKeyListener(new GamePause()); // 게임 일시정지를 위한 리스너 - 현재 포커스 문제로 작동하지 않음
 	}
 
-	/**
-	 * 패널에 게임의 내용을 그린다.
-	 * @param g 그리는 대상 Graphics2D 객체
-	 */
+	// 패널에 각 게임 구성요소를 그림
 	public void paintAll(Graphics2D g){
 
 		g.drawImage(backgroundImage, 0, 0, null);
@@ -126,6 +129,7 @@ public class Operater {
 		Items.paintItems(itemList, g);
 		player.drawSelf(g);
 
+		// 만약 PAUSE 와 같이 상태 정보를 표시할 필요가 있으면 그림
 		if(isNeedPaintInformation) {
 			g.drawImage(pauseBG, 0, 0, null);
 			TextLayout text = new TextLayout(information, font, g.getFontRenderContext());
@@ -137,10 +141,7 @@ public class Operater {
 		}
 	}
 
-	/**
-	 * 게임을 실행하기 위한 스레드 3개를 새로 시작한다.
-	 * 호출할 때마다 새로운 스레드를 만들어 시작한다.
-	 */
+	// 게임이 시작할 때 3개의 스레드를 시작시킴
 	public void startGame(){
 		if(!isGameOver){
 			makeEnemy = new MakeEnemy();
@@ -153,9 +154,7 @@ public class Operater {
 		}
 	}
 
-	/**
-	 * 게임을 일시정지 시키는 메소드 모든 스레드들이 끝날 떄까지 기다린다. join 사용
-	 */
+	// 게임을 일시정지 시키는 메소드 모든 스레드들이 끝날 떄까지 기다린다. join 사용
 	public synchronized void gamePause(){
 
 		isGamePause = true;
@@ -192,13 +191,15 @@ public class Operater {
 	 * 페이즈를 바꾸는 메소드
 	 */
 	private void changePhase(){
-		// 나중에 그림 그리는 기능 추가 예정
 
+		// 페이즈 정보를 바꿈
+		bgms[phase].stopMusic();
 		score.changePhase();
 		phase++;
-
+		bgms[phase].playMusic(false);
 		information = score.getPhase();
 
+		// 만약 마지막 페이지면 보스를 생성 적 생성 속도를 2배 빠르게 함
 		if(phase == phaseMax){
 			information = "BOSS";
 			boss = Enemys.makeBoss(enemyList, width);
@@ -207,6 +208,7 @@ public class Operater {
 		}
 
 		isNeedPaintInformation = true;
+
 	}
 
 	/**
@@ -216,6 +218,14 @@ public class Operater {
 	class MakeEnemy extends Thread{
 		@Override
 		public void run() {
+
+			try {
+				Thread.sleep(makeEnemyInterval);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
 			while(!isGamePause) {
 
 				Enemys.makeEnemy(enemyList, panel.getWidth());
@@ -233,12 +243,19 @@ public class Operater {
 	/**
 	 * 이 게임의 대한 대부분의 정보를 업데이트하는 스레드
 	 * 각 객체들의 위치를 이동시키고, 이동 후 충돌 여부와 화면 밖으로 나갔는지 여부를 확인하고
-	 * 삭제할 객체들을 삭제하는 메소드 마지막에 게임이 종료되었는지 확인하고 게임 실행 시간 정보를 갱신한다.
 	 * 모든 것이 끝났으면 repaint()를 호출한다.
 	 */
 	class UpdateAll extends Thread{
 		@Override
 		public void run() {
+
+			try {
+				Thread.sleep(updateInterval);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
 			while(!isGamePause) {
 
 				Bullets.moveBullets(bulletList);
@@ -275,6 +292,7 @@ public class Operater {
 	class PlayerAttack extends Thread{
 		@Override
 		public void run() {
+
 			while(!isGamePause) {
 				Bullets.makeBullet(bulletList, player.getCurrentBulletType());
 
@@ -287,12 +305,16 @@ public class Operater {
 		}
 	}
 
+	/*
+	 * 게임 전체적인 상황을 확인하고 조정하는 스레드
+	 */
 	class Checker extends Thread{
 
 		public static final int PAUSE = -1;
 		public static final int RESTART = 1;
 		public static final int NOTHING = 0;
 
+		// 외부에서 이 스레드 객체에 위 세가지 명령을 넣으면 작동하기 위한 변수
 		private int order = NOTHING;
 
 		private int remainingTime = changePhaseInterval;
@@ -307,39 +329,50 @@ public class Operater {
 
 					information = "GAME OVER";
 					isNeedPaintInformation = true;
+					bgms[phase].stopMusic();
+
+					// 게임 종류 후 패널 바꾸는 메소드 실행
+					((GamePanel) panel).changeResultPanel();
 				}
 
+				// 명령에 따라 작동
 				switch(order) {
-				case PAUSE:
+				case PAUSE: // 일시정지면 일시정지
 					gamePause();
 
 					information = "PAUSE";
 					isNeedPaintInformation = true;
 
 					break;
-				case RESTART:
+				case RESTART: // 재시작이면 재시작
 					gameRestart();
 
 					break;
-				default:
-					if(!isGamePause) {
+				default: // 확인 작업
+					if(!isGamePause) { // 게임이 멈추지 않았으면 시간 증가 후 페이즈 변환을 위한 남은 시간을 감소
 						score.addTime(updateInterval);
 						remainingTime -= updateInterval;
 					}
 
+					// 보스 페이즈면 보스가 죽었는지 확인하고 죽었으면 안내문과 함께 페이즈 변경
 					if(isBossPhase && boss.checkDead()){
 						gamePause();
 
 						information = "CLEAR";
 						isNeedPaintInformation = true;
 						isGameOver = true;
+						bgms[phase].stopMusic();
+						
+						((GamePanel) panel).changeResultPanel();
 					}
 
-
+					// 만약 페이즈 변경을 위한 시간이 적을 경우에 변경할 페이즈가 남아 있으면
 					if(remainingTime <= 0 && phase < phaseMax) {
 
+						// 페이즈 변경 남은 시간 업데이트
 						remainingTime = changePhaseInterval;
 
+						// 후 페이즈 변경
 						gamePause();
 						Enemys.changeEnemyVariety();
 						changePhase();
@@ -356,6 +389,7 @@ public class Operater {
 					break;
 				}
 
+				// 변경 종료를 알리고 명령을 아무것도 없음으로 바꿈
 				isInChanging = false;
 				order = NOTHING;
 
@@ -368,6 +402,7 @@ public class Operater {
 			}
 		}
 
+		// 외부에서 이 스레드 객체에 명령을 보내기 위한 메소드
 		public void setOrder(int order) {
 			this.order = order;
 		}
@@ -381,6 +416,7 @@ public class Operater {
 
 		@Override
 		public void keyPressed(KeyEvent e){
+			// 입력 키가 ESC이고 현재 바뀌는 중이 아니면 일시정지자 재시작을 실행
 			if(e.getKeyCode() == KeyEvent.VK_ESCAPE && !isInChanging){
 				if(!isGamePause){
 					isInChanging = true;
@@ -392,26 +428,6 @@ public class Operater {
 				}
 			}
 		}
-	}
-
-	class GameMousePause extends MouseAdapter{
-		@Override
-		public void mouseExited(MouseEvent e){
-			if(!isInChanging && !isGamePause){
-				isInChanging = true;
-				checker.setOrder(Checker.PAUSE);
-			}
-		}
-
-		@Override
-		public void mouseEntered(MouseEvent e){
-			if(!isInChanging && isGamePause){
-				isInChanging = true;
-				checker.setOrder(Checker.RESTART);
-			}
-		}
-
-
 	}
 
 }

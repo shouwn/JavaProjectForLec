@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+// 한 폴더에서 이미지 여러장 불러올 때 쓸 유틸 클래스
 public class Images {
 
 	public static BufferedImage[] readImages(String path){

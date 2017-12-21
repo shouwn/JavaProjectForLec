@@ -37,10 +37,10 @@ public class TypeE03 implements Enemy{
 			System.exit(0);
 		}
 
-		eachItemProbability.put(Items.getItemType(1), 5);
-		eachItemProbability.put(Items.getItemType(2), 10);
-		eachItemProbability.put(Items.getItemType(6), 50);
-		eachItemProbability.put(Items.getItemType(5), 30);
+		eachItemProbability.put(Items.getItemType(Items.ITEM_FORK), 10);
+		eachItemProbability.put(Items.getItemType(Items.COOL_PEACE_LARGE), 10);
+		eachItemProbability.put(Items.getItemType(Items.COOL_PEACE), 20);
+		eachItemProbability.put(Items.getItemType(Items.STEAMEDEGG), 60);
 	}
 
 	public TypeE03() {
@@ -50,9 +50,9 @@ public class TypeE03 implements Enemy{
 	public TypeE03(Point point) {
 		currentImage = images[0];
 		score = 30;
-		speed = 10;
+		speed = 15;
 		life = 2;
-		itemProbability = 100;
+		itemProbability = 50;
 
 		this.point = point;
 	}

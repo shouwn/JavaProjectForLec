@@ -8,11 +8,20 @@ import java.util.Random;
 
 import common.Point;
 import common.Score;
+import common.Sound;
 import player.Player;
 
 public class Items {
 	private static HashMap<Integer, Item> itemType = new HashMap<Integer, Item>();
 
+	public static final int ITEM_FORK = 0;
+	public static final int COOL_PEACE_LARGE = 1;
+	public static final int COOL_PEACE = 2;
+	public static final int FISH_CAKE = 3;
+	public static final int STEAMEDEGG = 4;
+	public static final int NURUNGJI = 5;
+	public static final int RICE_BALL = 6;
+	
 	static {
 		itemType.put(0, new TypeI00());
 		itemType.put(1, new TypeI01());
@@ -30,6 +39,7 @@ public class Items {
 			item = list.get(i);
 
 			if(!item.isUseful()){
+				new Sound(Sound.GOTITEM).playMusic(false);
 				score.addScore(item.getScore());
 				list.remove(i--);
 			}
@@ -88,6 +98,7 @@ public class Items {
 		for(int i = 0; i < list.size(); i++){
 			item = list.get(i);
 			if(item.isCrashed(player)){
+				new Sound(Sound.GOTITEM).playMusic(false);
 				item.affectTo(player);
 				item.setUseless();
 			}

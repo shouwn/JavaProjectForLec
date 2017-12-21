@@ -35,9 +35,8 @@ public class TypeE01 implements Enemy{
 			System.exit(0);
 		}
 
-		eachItemProbability.put(Items.getItemType(1), 5);
-		eachItemProbability.put(Items.getItemType(2), 10);
-		eachItemProbability.put(Items.getItemType(0), 40);
+		eachItemProbability.put(Items.getItemType(Items.ITEM_FORK), 5);
+		eachItemProbability.put(Items.getItemType(Items.FISH_CAKE), 95);
 	}
 
 	public TypeE01() {
@@ -48,7 +47,7 @@ public class TypeE01 implements Enemy{
 		score = 10;
 		speed = 10;
 		life = 1;
-		itemProbability = 100;
+		itemProbability = 30;
 
 		this.point = point;
 	}

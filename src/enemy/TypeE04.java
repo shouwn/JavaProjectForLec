@@ -38,11 +38,11 @@ public class TypeE04 implements Enemy{
 			System.exit(0);
 		}
 
-		eachItemProbability.put(Items.getItemType(1), 5);
-		eachItemProbability.put(Items.getItemType(2), 10);
-		eachItemProbability.put(Items.getItemType(6), 30);
-		eachItemProbability.put(Items.getItemType(5), 30);
-		eachItemProbability.put(Items.getItemType(4), 20);
+		eachItemProbability.put(Items.getItemType(Items.ITEM_FORK), 10);
+		eachItemProbability.put(Items.getItemType(Items.COOL_PEACE_LARGE), 15);
+		eachItemProbability.put(Items.getItemType(Items.COOL_PEACE), 15);
+		eachItemProbability.put(Items.getItemType(Items.STEAMEDEGG), 30);
+		eachItemProbability.put(Items.getItemType(Items.RICE_BALL), 30);
 	}
 
 	public TypeE04() {
@@ -52,9 +52,9 @@ public class TypeE04 implements Enemy{
 	public TypeE04(Point point) {
 		currentImage = images[0];
 		score = 50;
-		speed = 15;
+		speed = 17;
 		life = 3;
-		itemProbability = 100;
+		itemProbability = 60;
 
 		this.point = point;
 	}

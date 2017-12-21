@@ -10,7 +10,7 @@ import java.util.Map;
 import javax.imageio.ImageIO;
 
 import common.Point;
-import common.Points;
+import common.Sound;
 import item.Item;
 import player.Player;
 
@@ -28,7 +28,7 @@ public class Boss implements Enemy {
 
 	static{
 		try {
-			image = ImageIO.read(new File("image/Enemy/animal_cat_large.png"));
+			image = ImageIO.read(new File("image/Enemy/boss.gif"));
 		} catch (IOException e) {
 			System.err.println("Fail Load Boss Image");
 			System.exit(0);
@@ -52,16 +52,22 @@ public class Boss implements Enemy {
 
 	@Override
 	public boolean checkDead(){
+		boolean result = life <= 0;
+		if(result)
+			new Sound(Sound.BOSSDEAD).playMusic(false);
 		return life <= 0;
 	}
 
 	@Override
 	public void fallLife() {
+		new Sound(Sound.HITBOSS).playMusic(false);
 		life--;
 	}
 
 	@Override
 	public Boss makeSelf(Point point) {
+		new Sound(Sound.BOSS).playMusic(false);
+
 		return new Boss(point);
 	}
 
@@ -102,17 +108,6 @@ public class Boss implements Enemy {
 
 	@Override
 	public boolean isCrashed(Player player) {
-
-		if(checkDead())
-			return false;
-
-		if(Points.checkAreaInArea(
-				player.getPoint(),
-				new Point(player.getPoint()).add(player.getWidth(), player.getHeight()),
-				this.point,
-				new Point(this.point).add(getWidth(), getHeight())))
-
-			return true;
 
 		return false;
 	}

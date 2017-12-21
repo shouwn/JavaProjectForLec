@@ -37,8 +37,8 @@ public class TypeE02 implements Enemy{
 			System.exit(0);
 		}
 
-		eachItemProbability.put(Items.getItemType(1), 5);
-		eachItemProbability.put(Items.getItemType(2), 10);
+		eachItemProbability.put(Items.getItemType(Items.ITEM_FORK), 5);
+		eachItemProbability.put(Items.getItemType(Items.NURUNGJI), 95);
 	}
 
 	public TypeE02() {
@@ -48,9 +48,9 @@ public class TypeE02 implements Enemy{
 	public TypeE02(Point point) {
 		currentImage = images[0];
 		score = 20;
-		speed = 10;
+		speed = 13;
 		life = 2;
-		itemProbability = 100;
+		itemProbability = 40;
 
 		this.point = point;
 	}
